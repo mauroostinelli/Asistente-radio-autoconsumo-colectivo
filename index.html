@@ -4,7 +4,7 @@
     <base target="_top">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asistente Solar Interactivo</title>
+    <title>Asistente Solar Interactivo v2.1</title>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -14,25 +14,20 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-
     <style>
-        /* --- Estilos Generales --- */
-        html, body { height: 100%; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; overflow: hidden; /* Evita scroll general */ }
+        html, body { height: 100%; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; overflow: hidden; }
         * { box-sizing: border-box; }
         .container { display: flex; flex-direction: column; height: 100vh; padding: 15px; }
 
-        /* --- Barra de Progreso --- */
         .progress-container { width: 100%; background-color: #e0e0e0; border-radius: 5px; margin-bottom: 15px; overflow: hidden; }
-        .progress-bar { width: 0%; /* Se actualiza con JS */ height: 15px; background-color: #ffc107; /* Amarillo solar */ text-align: center; line-height: 15px; color: #333; font-size: 10px; font-weight: bold; border-radius: 5px 0 0 5px; transition: width 0.5s ease-in-out; }
+        .progress-bar { width: 0%; height: 15px; background-color: #ffc107; text-align: center; line-height: 15px; color: #333; font-size: 10px; font-weight: bold; border-radius: 5px 0 0 5px; transition: width 0.6s cubic-bezier(0.65, 0, 0.35, 1); }
         .progress-steps { display: flex; justify-content: space-between; font-size: 12px; padding: 5px 0; color: #555; }
         .progress-steps span { flex: 1; text-align: center; }
 
-        /* --- Pasos del Wizard --- */
-        .step { display: none; /* Ocultos por defecto */ flex-grow: 1; /* Ocupa espacio restante */ overflow-y: auto; /* Scroll si el contenido es largo */ padding: 15px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .step { display: none; flex-grow: 1; overflow-y: auto; padding: 15px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .step.active { display: block; animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- Controles de Navegación --- */
         .navigation-buttons { padding-top: 15px; display: flex; justify-content: space-between; }
         .nav-button { padding: 10px 25px; font-size: 16px; cursor: pointer; border: none; border-radius: 25px; transition: background-color 0.3s ease, transform 0.1s ease; }
         #prev-button { background-color: #ccc; color: #555; }
@@ -41,8 +36,7 @@
         .nav-button:active { transform: scale(0.98); }
         .nav-button:disabled { background-color: #e0e0e0; cursor: not-allowed; color: #999; }
 
-        /* --- Estilos Mapa y Búsqueda (Adaptados) --- */
-        #map-container { position: relative; height: 400px; /* Altura ajustable */ margin-bottom: 15px; }
+        #map-container { position: relative; height: 400px; margin-bottom: 15px; }
         #map { height: 100%; width: 100%; z-index: 1; border-radius: 8px; }
         #search-container { position: absolute; top: 10px; left: 10px; z-index: 1050; width: 90%; max-width: 400px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; align-items: center; padding: 5px; }
         #search-input { flex-grow: 1; height: 40px; padding: 0 15px; font-size: 16px; border: none; outline: none; border-radius: 4px; background: transparent; }
@@ -52,27 +46,25 @@
         .suggestion-item:hover { background-color: #f5f5f5; }
         .suggestion-item small { display: block; color: #777; font-size: 11px; margin-top: 2px; }
 
-        /* --- Estilos para Elementos Interactivos (Placeholders) --- */
         .interactive-section { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
-        .interactive-section h3 { margin-top: 0; color: #0056b3; /* Azul para títulos de sección */ }
-        .image-selector img { width: 100px; height: 100px; object-fit: cover; border: 3px solid transparent; border-radius: 8px; margin: 5px; cursor: pointer; transition: border-color 0.3s ease, transform 0.2s ease; }
-        .image-selector img:hover { transform: scale(1.05); }
-        .image-selector img.selected { border-color: #ffc107; box-shadow: 0 0 10px rgba(255, 193, 7, 0.5); }
+        .interactive-section h3 { margin-top: 0; color: #0056b3; }
+        .image-selector img { width: 100px; height: 100px; object-fit: cover; border: 3px solid #ddd; border-radius: 8px; margin: 5px; cursor: pointer; transition: all 0.25s ease; filter: grayscale(50%); }
+        .image-selector img:hover { transform: scale(1.05); filter: grayscale(0%); }
+        .image-selector img.selected { border-color: #ffc107; box-shadow: 0 0 15px rgba(255, 193, 7, 0.6); transform: scale(1.08); filter: grayscale(0%); }
         .slider-container { display: flex; align-items: center; margin-top: 10px; }
         .slider-container label { width: 100px; margin-right: 10px; font-size: 14px; }
         .slider-container input[type="range"] { flex-grow: 1; cursor: pointer; }
         .slider-container span { min-width: 40px; text-align: right; font-weight: bold; font-size: 14px; margin-left: 10px;}
-        .icon-selector i { font-size: 24px; /* Necesitas una librería de iconos como Font Awesome */ margin: 5px 10px; padding: 8px; border: 1px solid #ccc; border-radius: 50%; cursor: pointer; transition: background-color 0.3s, color 0.3s; }
+        .icon-selector i { font-size: 24px; margin: 5px 10px; padding: 8px; border: 1px solid #ccc; border-radius: 50%; cursor: pointer; transition: background-color 0.3s, color 0.3s; }
         .icon-selector i:hover { background-color: #f0f0f0; }
         .icon-selector i.selected { background-color: #ffc107; color: #fff; border-color: #ffc107; }
 
-        /* --- Resultados --- */
         #results-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
         .result-card { background-color: #e9f5ff; padding: 15px; border-radius: 8px; text-align: center; }
         .result-card h4 { margin-top: 0; color: #0056b3; }
-        .result-value { font-size: 24px; font-weight: bold; color: #003d7a; margin: 5px 0; /* Añadir animación contador aquí */ }
-        #chart-container { margin-top: 20px; }
-        #results-map-container { /* Contenedor para mostrar paneles en el techo dibujado */ height: 250px; background-color: #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-style: italic; color: #777; margin-top: 15px;}
+        .result-value { font-size: 24px; font-weight: bold; color: #003d7a; margin: 5px 0; min-height: 30px; }
+        #chart-container { margin-top: 20px; background-color: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 1px 5px rgba(0,0,0,0.05);}
+        #results-map-container { height: 250px; background-color: #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-style: italic; color: #777; margin-top: 15px;}
 
     </style>
 </head>
@@ -100,13 +92,12 @@
                 <div id="map-container">
                     <div id="map"></div>
                 </div>
-                 <button id="draw-roof-button" class="nav-button" style="background-color: #007bff; color: white; margin-top: 10px;">✏️ Dibujar Área del Tejado</button>
+                <button id="draw-roof-button" class="nav-button" style="background-color: #007bff; color: white; margin-top: 10px;">✏️ Dibujar Área del Tejado</button>
                  <div id="area-info" style="margin-top: 10px; font-weight: bold;"></div>
             </div>
 
             <div id="step-2" class="step">
                 <h2>Paso 2: Cuéntanos sobre tu tejado</h2>
-
                 <div class="interactive-section">
                     <h3>Tipo de Tejado</h3>
                     <p>Selecciona la imagen que mejor represente tu tejado:</p>
@@ -117,10 +108,9 @@
                         <img src="https://via.placeholder.com/100/cccccc/ffffff?text=Complejo" alt="Tejado Complejo" data-value="complejo">
                     </div>
                 </div>
-
                 <div class="interactive-section">
                     <h3>Orientación e Inclinación</h3>
-                     <div class="slider-container">
+                    <div class="slider-container">
                         <label for="orientation-slider">Orientación:</label>
                         <input type="range" id="orientation-slider" name="orientation" min="0" max="360" value="180">
                         <span id="orientation-value">Sur (180°)</span>
@@ -131,12 +121,11 @@
                         <span id="tilt-value">30°</span>
                     </div>
                 </div>
-
                  <div class="interactive-section">
                     <h3>Obstáculos y Sombras</h3>
                     <p>¿Hay alguno de estos elementos que proyecte sombra sobre el tejado?</p>
                     <div class="icon-selector" id="obstacle-selector">
-                         <i class="fas fa-tree" data-value="arbol" title="Árboles cercanos">🌳</i>
+                        <i class="fas fa-tree" data-value="arbol" title="Árboles cercanos">🌳</i>
                         <i class="fas fa-building" data-value="edificio" title="Edificios cercanos">🏢</i>
                         <i class="fas fa-chimney" data-value="chimenea" title="Chimenea">🧱</i>
                          <i class="fas fa-satellite-dish" data-value="antena" title="Antena">📡</i>
@@ -162,11 +151,10 @@
             <div id="step-4" class="step">
                 <h2>Paso 4: ¡Este es tu Potencial Solar!</h2>
                 <p>Basado en la información proporcionada, esta es una estimación:</p>
-
                 <div id="results-container">
-                     <div class="result-card">
+                    <div class="result-card">
                         <h4>Ahorro Anual Estimado</h4>
-                        <div class="result-value" id="result-savings">--- €</div>
+                        <div class="result-value" id="result-savings">0 €</div>
                     </div>
                     <div class="result-card">
                         <h4>Instalación Recomendada</h4>
@@ -181,15 +169,12 @@
                         <div class="result-value" id="result-co2">--- kg</div>
                     </div>
                 </div>
-
                 <div id="chart-container">
-                     <canvas id="resultsChart"></canvas>
+                    <canvas id="resultsChart"></canvas>
                 </div>
-
                 <div id="results-map-container">
                      Visualización del tejado (próximamente)
                  </div>
-
                 <p style="margin-top: 20px; text-align: center; font-weight: bold;">¿Quieres un estudio detallado y gratuito?</p>
                 <button class="nav-button" style="width: 100%; background-color: #28a745; color: white; margin-top: 10px;">¡Sí, Solicitar Estudio Personalizado!</button>
             </div>
@@ -200,8 +185,9 @@
             <button id="next-button" class="nav-button">Siguiente</button>
         </div>
 
-    </div><script>
-        // --- Variables Globales ---
+    </div>
+
+    <script>
         let currentStep = 0;
         const steps = document.querySelectorAll('.step');
         const progressBar = document.getElementById('progress-bar');
@@ -209,35 +195,28 @@
         const nextButton = document.getElementById('next-button');
         const totalSteps = steps.length;
         let map;
-        let drawnItems; // LayerGroup para los elementos dibujados
-        let drawControl; // Control de dibujo de Leaflet.draw
-        let userPolygon = null; // Para guardar el polígono dibujado
-        const markersData = {}; // Mantenemos por si se necesita en el futuro
-
-        // --- Configuración Inicial del Mapa ---
+        let drawnItems;
+        let drawControl;
+        let userPolygon = null;
+        const markersData = {};
         const initialCoords = [40.103, -4.384];
         const initialZoom = 7;
+        let resultsChartInstance = null;
 
-        // --- Inicialización General ---
         document.addEventListener('DOMContentLoaded', () => {
             initializeMap();
             setupStepNavigation();
             updateProgressBar();
             setupSearch();
-            setupInteractiveElements(); // Configurar sliders, selectores, etc.
-            // initializeMapDrawing(); // Se llamará al pulsar el botón
+            setupInteractiveElements();
             console.log("Asistente Solar listo.");
         });
 
-        // --- Lógica de Pasos y Navegación ---
         function setupStepNavigation() {
             prevButton.addEventListener('click', () => changeStep(-1));
             nextButton.addEventListener('click', () => {
                  if (validateStep(currentStep)) {
                      if (currentStep === totalSteps - 1) {
-                         // Último paso - Mostrar Resultados (o enviar formulario)
-                         calculateAndShowResults();
-                         // Podrías deshabilitar 'next' o cambiar su texto/acción
                          nextButton.textContent = "Finalizado";
                          nextButton.disabled = true;
                      } else {
@@ -245,7 +224,7 @@
                      }
                  }
              });
-            showStep(currentStep); // Mostrar el primer paso inicialmente
+            showStep(currentStep);
         }
 
         function changeStep(direction) {
@@ -262,15 +241,9 @@
             });
             updateButtonStates();
             updateProgressBar();
-
-            // Si volvemos al paso 1 y ya hay un dibujo, re-activar edición quizás?
-            if (stepIndex === 0 && drawControl) {
-                 // Considerar lógica para editar el polígono existente
-            }
-             // Si llegamos al último paso, calcular resultados
              if (stepIndex === totalSteps - 1) {
                 calculateAndShowResults();
-                nextButton.textContent = "Finalizar"; // Cambiar texto del botón
+                nextButton.textContent = "Finalizar";
              } else {
                  nextButton.textContent = "Siguiente";
              }
@@ -278,46 +251,23 @@
 
         function updateButtonStates() {
             prevButton.disabled = currentStep === 0;
-            // nextButton.disabled = currentStep === totalSteps - 1; // Deshabilitar al final (o cambiar acción)
-            // Habilitar next siempre excepto quizás en el último paso después de finalizar
-            nextButton.disabled = false; // Simplificado por ahora
+            nextButton.disabled = (currentStep === totalSteps - 1);
         }
 
         function updateProgressBar() {
             const progressPercentage = ((currentStep + 1) / totalSteps) * 100;
             progressBar.style.width = `${progressPercentage}%`;
-             progressBar.textContent = `Paso ${currentStep + 1} de ${totalSteps}`;
+            progressBar.textContent = `Paso ${currentStep + 1} de ${totalSteps}`;
         }
 
         function validateStep(stepIndex) {
-            // --- TODO: Añadir validaciones específicas para cada paso ---
-            console.log(`Validando paso ${stepIndex + 1}`);
-            if (stepIndex === 0) { // Paso 1: Ubicación
-                if (!userPolygon) {
-                    alert("Por favor, dibuja el área de tu tejado en el mapa antes de continuar.");
-                    return false;
-                }
-            }
-            if (stepIndex === 1) { // Paso 2: Detalles del tejado
-                const roofType = document.querySelector('.image-selector img.selected');
-                if (!roofType) {
-                    alert("Selecciona el tipo de tejado.");
-                    return false;
-                }
-                // Añadir validación para sliders si es necesario
-            }
-             if (stepIndex === 2) { // Paso 3: Consumo
-                const bill = document.getElementById('bill-slider').value;
-                const kwh = document.getElementById('kwh-input').value;
-                 if (!bill && !kwh) { // O una validación más específica
-                     alert("Indica tu gasto o consumo energético.");
-                     return false;
-                 }
-            }
-            return true; // Asumir válido por ahora si no hay errores
+             console.log(`Validando paso ${stepIndex + 1}`);
+             if (stepIndex === 0) { if (!userPolygon) { alert("Por favor, dibuja el área de tu tejado en el mapa."); return false; } }
+             if (stepIndex === 1) { if (!document.querySelector('.image-selector img.selected')) { alert("Selecciona el tipo de tejado."); return false; } }
+             if (stepIndex === 2) { const bill = document.getElementById('bill-slider').value; const kwh = document.getElementById('kwh-input').value; if (bill <= 20 && !kwh) { alert("Indica tu gasto o consumo energético."); return false; } }
+            return true;
         }
 
-        // --- Lógica del Mapa y Dibujo ---
         function initializeMap() {
             map = L.map('map', { zoomControl: false, attributionControl: true }).setView(initialCoords, initialZoom);
             L.control.zoom({ position: 'bottomright' }).addTo(map);
@@ -326,196 +276,97 @@
             streetLayer.addTo(map);
             const baseMaps = { "Calles": streetLayer, "Satélite": satelliteLayer };
             L.control.layers(baseMaps, null, { position: 'bottomleft' }).addTo(map);
-
-            // Inicializar LayerGroup para los dibujos
             drawnItems = new L.FeatureGroup();
             map.addLayer(drawnItems);
-
-             // Evento para el botón de dibujar
-             document.getElementById('draw-roof-button').addEventListener('click', () => {
-                 startDrawing();
-             });
-
-            // Quitar lógica antigua de añadir marcador al hacer clic directamente
-            // map.on('click', function(e) { addMarkerWithCirclesAndLabels(e.latlng); }); // Comentado/Eliminado
+            document.getElementById('draw-roof-button').addEventListener('click', () => { startDrawing(); });
+            map.on(L.Draw.Event.CREATED, handleDrawCreate);
+            map.on(L.Draw.Event.EDITED, handleDrawEdit);
+            map.on(L.Draw.Event.DELETED, handleDrawDelete);
         }
 
-        function startDrawing() {
-             // Si ya existe un control, quitarlo para evitar duplicados
-            if (drawControl) {
-                map.removeControl(drawControl);
-            }
-             // Si ya hay un polígono, limpiarlo antes de dibujar uno nuevo
-             if(userPolygon) {
-                 drawnItems.removeLayer(userPolygon);
-                 userPolygon = null;
-                 document.getElementById('area-info').textContent = '';
-             }
-
-             // Configurar controles de Leaflet.draw
-            drawControl = new L.Control.Draw({
-                position: 'topright',
-                draw: {
-                    polygon: {
-                        allowIntersection: false, // No permitir que el polígono se cruce
-                        shapeOptions: {
-                            color: '#ffc107', // Amarillo
-                            fillColor: '#ffc107',
-                            fillOpacity: 0.4
-                        },
-                        showArea: true, // Mostrar área mientras se dibuja
-                         metric: true // Usar metros cuadrados
-                    },
-                    // Deshabilitar otras herramientas de dibujo
-                    polyline: false,
-                    rectangle: false,
-                    circle: false,
-                    marker: false,
-                     circlemarker: false
-                },
-                edit: {
-                    featureGroup: drawnItems, // Permitir editar los elementos en esta capa
-                    remove: true // Permitir borrar
-                }
-            });
+         function startDrawing() {
+            if (drawControl) map.removeControl(drawControl);
+            if (userPolygon) { drawnItems.removeLayer(userPolygon); userPolygon = null; document.getElementById('area-info').textContent = ''; }
+            drawControl = new L.Control.Draw({ position: 'topright', draw: { polygon: { allowIntersection: false, shapeOptions: { color: '#ffc107', fillColor: '#ffc107', fillOpacity: 0.4 }, showArea: true, metric: true }, polyline: false, rectangle: false, circle: false, marker: false, circlemarker: false }, edit: { featureGroup: drawnItems, remove: true } });
             map.addControl(drawControl);
-
-            // Activar el modo de dibujo de polígono inmediatamente (opcional)
-            // new L.Draw.Polygon(map, drawControl.options.draw.polygon).enable(); // Puede ser confuso para el usuario
-
-             alert("Herramienta de dibujo activada. Haz clic en el mapa para empezar a dibujar las esquinas de tu tejado. Doble clic para finalizar.");
+            alert("Herramienta de dibujo activada. Haz clic en el mapa para empezar a dibujar las esquinas de tu tejado. Doble clic para finalizar.");
         }
 
-        map.on(L.Draw.Event.CREATED, function (event) {
+        function handleDrawCreate(event) {
             const layer = event.layer;
-             // Solo permitir un polígono a la vez (eliminar anteriores si los hay)
-            if (userPolygon) {
-                drawnItems.removeLayer(userPolygon);
-            }
-            userPolygon = layer; // Guardar la referencia
+            if (userPolygon) drawnItems.removeLayer(userPolygon);
+            userPolygon = layer;
             drawnItems.addLayer(layer);
-
-            // Calcular y mostrar área
             const area = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]);
-            document.getElementById('area-info').textContent = `Área del tejado dibujada: ${area.toFixed(2)} m²`;
+            document.getElementById('area-info').textContent = `Área dibujada: ${area.toFixed(2)} m²`;
+        }
 
-            console.log("Polígono dibujado:", layer.toGeoJSON());
-            console.log("Área:", area);
+        function handleDrawEdit(event) { event.layers.eachLayer(layer => { if (layer instanceof L.Polygon) { userPolygon = layer; const area = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]); document.getElementById('area-info').textContent = `Área actualizada: ${area.toFixed(2)} m²`; } }); }
 
-             // Quizás desactivar el control de dibujo después de crear uno?
-             // map.removeControl(drawControl);
-             // drawControl = null;
-        });
+        function handleDrawDelete(event) { event.layers.eachLayer(layer => { if (layer === userPolygon) { userPolygon = null; document.getElementById('area-info').textContent = ''; } }); }
 
-         map.on(L.Draw.Event.EDITED, function (event) {
-             event.layers.eachLayer(function (layer) {
-                 if (layer instanceof L.Polygon) {
-                     userPolygon = layer; // Actualizar referencia si se edita
-                     const area = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]);
-                     document.getElementById('area-info').textContent = `Área actualizada: ${area.toFixed(2)} m²`;
-                     console.log("Polígono editado, nueva área:", area);
-                 }
-             });
-         });
-
-         map.on(L.Draw.Event.DELETED, function (event) {
-             event.layers.eachLayer(function (layer) {
-                 if (layer === userPolygon) {
-                     userPolygon = null; // Limpiar referencia si se borra
-                     document.getElementById('area-info').textContent = '';
-                     console.log("Polígono eliminado.");
-                 }
-             });
-         });
-
-
-        // --- Lógica Barra de Búsqueda (Nominatim - sin cambios funcionales) ---
         function setupSearch() {
             const searchInput = document.getElementById('search-input');
             const suggestionsContainer = document.getElementById('suggestions-container');
             const searchContainer = document.getElementById('search-container');
             let debounceTimer;
-
-            function displaySuggestions(results) { suggestionsContainer.innerHTML = ''; if (results === null) { showSearchError("Error en el servidor al buscar."); return; } if (!results || results.length === 0) { suggestionsContainer.style.display = 'none'; return; } results.forEach(place => { const item = document.createElement('div'); item.classList.add('suggestion-item'); let displayName = place.display_name; let addressDetails = ''; if (place.address) { addressDetails = [ place.address.road || place.address.pedestrian, place.address.house_number, place.address.city || place.address.town || place.address.village, place.address.state ].filter(Boolean).join(', '); displayName = place.address.amenity || place.address.shop || place.address.tourism || place.name || displayName.split(',')[0]; } item.innerHTML = `${displayName} ${addressDetails ? `<small>${addressDetails}</small>` : ''}`; item.dataset.lat = place.lat; item.dataset.lon = place.lon; if (place.boundingbox && place.boundingbox.length === 4) { item.dataset.bbox = place.boundingbox.join(','); } else { item.dataset.bbox = ''; } item.addEventListener('click', () => { const lat = parseFloat(item.dataset.lat); const lon = parseFloat(item.dataset.lon); const bboxStr = item.dataset.bbox; let bbox = null; if (bboxStr) { bbox = bboxStr.split(',').map(Number); } if (bbox && bbox.length === 4) { map.fitBounds([[bbox[0], bbox[2]], [bbox[1], bbox[3]]]); } else if (!isNaN(lat) && !isNaN(lon)) { map.flyTo([lat, lon], 17); /* Más zoom al seleccionar */ } searchInput.value = displayName; suggestionsContainer.innerHTML = ''; suggestionsContainer.style.display = 'none'; /* --- TODO: Quizás añadir un marcador temporal aquí --- */ }); suggestionsContainer.appendChild(item); }); suggestionsContainer.style.display = 'block'; }
-            function showSearchError(errorDetails) { console.error("Error de búsqueda:", errorDetails); suggestionsContainer.innerHTML = '<div class="suggestion-item" style="color: red;">Error al buscar. Inténtalo de nuevo.</div>'; suggestionsContainer.style.display = 'block'; }
+            function displaySuggestions(results) { suggestionsContainer.innerHTML = ''; if (results === null) { showSearchError("Error en el servidor."); return; } if (!results || results.length === 0) { suggestionsContainer.style.display = 'none'; return; } results.forEach(place => { const item = document.createElement('div'); item.classList.add('suggestion-item'); let displayName = place.display_name; let addressDetails = ''; if (place.address) { addressDetails = [ place.address.road || place.address.pedestrian, place.address.house_number, place.address.city || place.address.town || place.address.village, place.address.state ].filter(Boolean).join(', '); displayName = place.address.amenity || place.address.shop || place.address.tourism || place.name || displayName.split(',')[0]; } item.innerHTML = `${displayName} ${addressDetails ? `<small>${addressDetails}</small>` : ''}`; item.dataset.lat = place.lat; item.dataset.lon = place.lon; if (place.boundingbox && place.boundingbox.length === 4) { item.dataset.bbox = place.boundingbox.join(','); } else { item.dataset.bbox = ''; } item.addEventListener('click', () => { const lat = parseFloat(item.dataset.lat); const lon = parseFloat(item.dataset.lon); const bboxStr = item.dataset.bbox; let bbox = null; if (bboxStr) { bbox = bboxStr.split(',').map(Number); } if (bbox && bbox.length === 4) { map.fitBounds([[bbox[0], bbox[2]], [bbox[1], bbox[3]]]); } else if (!isNaN(lat) && !isNaN(lon)) { map.flyTo([lat, lon], 17); } searchInput.value = displayName; suggestionsContainer.innerHTML = ''; suggestionsContainer.style.display = 'none'; }); suggestionsContainer.appendChild(item); }); suggestionsContainer.style.display = 'block'; }
+            function showSearchError(errorDetails) { console.error("Error búsqueda:", errorDetails); suggestionsContainer.innerHTML = '<div class="suggestion-item" style="color: red;">Error al buscar.</div>'; suggestionsContainer.style.display = 'block'; }
             function triggerSearch() { const query = searchInput.value; if (query.length < 3) { suggestionsContainer.innerHTML = ''; suggestionsContainer.style.display = 'none'; return; } suggestionsContainer.innerHTML = '<div class="suggestion-item" style="color: grey;">Buscando...</div>'; suggestionsContainer.style.display = 'block'; google.script.run .withSuccessHandler(displaySuggestions) .withFailureHandler(showSearchError) .searchNominatim(query); }
             searchInput.addEventListener('input', () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(triggerSearch, 400); });
             document.addEventListener('click', (event) => { if (searchContainer && !searchContainer.contains(event.target)) { suggestionsContainer.style.display = 'none'; } });
         }
 
-        // --- Configuración Elementos Interactivos (Sliders, Selectores) ---
         function setupInteractiveElements() {
-            // Selector de tipo de tejado
             const roofImages = document.querySelectorAll('#roof-type-selector img');
             roofImages.forEach(img => {
                 img.addEventListener('click', () => {
-                    roofImages.forEach(i => i.classList.remove('selected')); // Deseleccionar otros
+                    roofImages.forEach(i => i.classList.remove('selected'));
                     img.classList.add('selected');
-                    console.log("Tipo de tejado seleccionado:", img.dataset.value);
+                    console.log("Tipo tejado:", img.dataset.value);
                 });
             });
-
-            // Slider de orientación
             const orientationSlider = document.getElementById('orientation-slider');
             const orientationValue = document.getElementById('orientation-value');
-            orientationSlider.addEventListener('input', () => {
-                 const value = parseInt(orientationSlider.value);
-                 let direction = "Norte";
-                 if (value > 337.5 || value <= 22.5) direction = "Norte";
-                 else if (value <= 67.5) direction = "Noreste";
-                 else if (value <= 112.5) direction = "Este";
-                 else if (value <= 157.5) direction = "Sureste";
-                 else if (value <= 202.5) direction = "Sur";
-                 else if (value <= 247.5) direction = "Suroeste";
-                 else if (value <= 292.5) direction = "Oeste";
-                 else if (value <= 337.5) direction = "Noroeste";
-                 orientationValue.textContent = `${direction} (${value}°)`;
-            });
-            // Disparar evento inicial para mostrar valor
+            orientationSlider.addEventListener('input', () => { const value = parseInt(orientationSlider.value); let direction = "Norte"; if (value > 337.5 || value <= 22.5) direction = "Norte"; else if (value <= 67.5) direction = "Noreste"; else if (value <= 112.5) direction = "Este"; else if (value <= 157.5) direction = "Sureste"; else if (value <= 202.5) direction = "Sur"; else if (value <= 247.5) direction = "Suroeste"; else if (value <= 292.5) direction = "Oeste"; else if (value <= 337.5) direction = "Noroeste"; orientationValue.textContent = `${direction} (${value}°)`; });
             orientationSlider.dispatchEvent(new Event('input'));
-
-
-            // Slider de inclinación
             const tiltSlider = document.getElementById('tilt-slider');
             const tiltValue = document.getElementById('tilt-value');
-            tiltSlider.addEventListener('input', () => {
-                tiltValue.textContent = `${tiltSlider.value}°`;
-            });
-            tiltSlider.dispatchEvent(new Event('input')); // Valor inicial
-
-
-            // Selector de obstáculos (requiere iconos como FontAwesome)
+            tiltSlider.addEventListener('input', () => { tiltValue.textContent = `${tiltSlider.value}°`; });
+            tiltSlider.dispatchEvent(new Event('input'));
             const obstacleIcons = document.querySelectorAll('#obstacle-selector i');
-             obstacleIcons.forEach(icon => {
-                 icon.addEventListener('click', () => {
-                     icon.classList.toggle('selected');
-                     const selectedObstacles = Array.from(document.querySelectorAll('#obstacle-selector i.selected')).map(i => i.dataset.value);
-                     console.log("Obstáculos seleccionados:", selectedObstacles);
-                 });
-             });
-
-             // Slider/Input de consumo
+             obstacleIcons.forEach(icon => { icon.addEventListener('click', () => { icon.classList.toggle('selected'); console.log("Obstáculos:", Array.from(document.querySelectorAll('#obstacle-selector i.selected')).map(i => i.dataset.value)); }); });
              const billSlider = document.getElementById('bill-slider');
              const billValue = document.getElementById('bill-value');
              const kwhInput = document.getElementById('kwh-input');
-
-             billSlider.addEventListener('input', () => {
-                 billValue.textContent = `${billSlider.value} €`;
-                 kwhInput.value = ''; // Limpiar el otro campo si se usa el slider
-             });
-             kwhInput.addEventListener('input', () => {
-                 billSlider.value = billSlider.min; // Resetear slider si se usa input
-                 billValue.textContent = `${billSlider.min} €`;
-             });
-            billSlider.dispatchEvent(new Event('input')); // Valor inicial
+             billSlider.addEventListener('input', () => { billValue.textContent = `${billSlider.value} €`; kwhInput.value = ''; });
+             kwhInput.addEventListener('input', () => { billSlider.value = 20; billValue.textContent = `20 €`; });
+            billSlider.dispatchEvent(new Event('input'));
         }
 
-        // --- Lógica de Resultados y Gráficos ---
-        let resultsChartInstance = null; // Para poder destruir el gráfico anterior
+        function animateCounter(elementId, targetValue, duration = 1500, suffix = ' €') {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            const startValue = 0;
+            const range = targetValue - startValue;
+            let startTime = null;
+            function step(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const progress = timestamp - startTime;
+                const increment = Math.min(progress / duration, 1);
+                const currentValue = Math.floor(startValue + range * increment);
+                element.textContent = currentValue + suffix;
+                if (increment < 1) {
+                    requestAnimationFrame(step);
+                } else {
+                     element.textContent = targetValue + suffix;
+                }
+            }
+            requestAnimationFrame(step);
+        }
 
         function calculateAndShowResults() {
             console.log("Calculando resultados...");
-            // --- TODO: Recoger todos los datos de los pasos anteriores ---
             const locationData = userPolygon ? userPolygon.toGeoJSON() : null;
             const area = userPolygon ? L.GeometryUtil.geodesicArea(userPolygon.getLatLngs()[0]) : 0;
             const roofType = document.querySelector('.image-selector img.selected')?.dataset.value;
@@ -525,73 +376,65 @@
             const bill = document.getElementById('bill-slider').value;
             const kwh = document.getElementById('kwh-input').value;
 
-            // --- TODO: Implementar lógica de cálculo REAL ---
-            // Esta es una lógica MUY SIMPLIFICADA solo como ejemplo
-            const estimatedKwp = (area / 8).toFixed(1); // Asumir 8 m² por kWp (muy básico)
-            const estimatedProduction = (estimatedKwp * 1500).toFixed(0); // Asumir 1500 kWh/kWp/año (varía mucho por ubicación/orientación)
-             const estimatedSavings = (bill * 12 * 0.6).toFixed(0); // Asumir ahorro del 60% de la factura anual (muy burdo)
-             const co2Avoided = (estimatedProduction * 0.3).toFixed(0); // Asumir 0.3 kg CO2/kWh (depende mix eléctrico)
+            const estimatedKwp = Math.max(0, (area / 8 - obstacles.length * 0.5)).toFixed(1);
+            const estimatedProduction = (estimatedKwp * 1500).toFixed(0);
+            const estimatedSavingsRaw = Math.max(0, (bill * 12 * 0.6));
+            const co2Avoided = (estimatedProduction * 0.3).toFixed(0);
 
-            // --- TODO: Animar la aparición de los valores ---
-            document.getElementById('result-savings').textContent = `${estimatedSavings} €`;
+             animateCounter('result-savings', Math.floor(estimatedSavingsRaw), 1500, ' €');
             document.getElementById('result-kwp').textContent = `${estimatedKwp} kWp`;
             document.getElementById('result-production').textContent = `${estimatedProduction} kWh`;
             document.getElementById('result-co2').textContent = `${co2Avoided} kg`;
 
-            // --- TODO: Generar el gráfico con Chart.js ---
-            const ctx = document.getElementById('resultsChart').getContext('2d');
-            const chartData = {
+             const ctx = document.getElementById('resultsChart').getContext('2d');
+             const monthlyProductionFactors = [0.4, 0.5, 0.8, 1.0, 1.2, 1.3, 1.35, 1.25, 1.0, 0.7, 0.5, 0.35];
+             const estimatedMonthlyProduction = monthlyProductionFactors.map(factor =>
+                 Math.floor(factor * (estimatedProduction / 12))
+             );
+             const chartData = {
                 labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
                 datasets: [{
-                    label: 'Producción Solar Estimada (kWh)',
-                    data: [80, 90, 150, 180, 220, 250, 260, 240, 200, 160, 100, 70].map(v => v * (estimatedKwp/2)), // Datos de ejemplo escalados
+                    label: 'Producción Solar Estimada (kWh/mes)',
+                    data: estimatedMonthlyProduction,
                     borderColor: '#ffc107',
                     backgroundColor: 'rgba(255, 193, 7, 0.3)',
                     fill: true,
-                    tension: 0.3
-                }
-                // Podrías añadir otra dataset para el consumo si tienes esos datos
-                ]
+                    tension: 0.3,
+                    pointBackgroundColor: '#ffc107',
+                    pointRadius: 4
+                }]
             };
 
-             // Destruir gráfico anterior si existe
              if (resultsChartInstance) {
                  resultsChartInstance.destroy();
              }
 
             resultsChartInstance = new Chart(ctx, {
-                type: 'line', // o 'bar'
+                type: 'line',
                 data: chartData,
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         title: {
                             display: true,
-                            text: 'Estimación de Producción Mensual'
-                        }
+                            text: 'Estimación de Producción vs Consumo Mensual',
+                            font: { size: 16 }
+                        },
+                        legend: { position: 'top' },
+                         tooltip: { enabled: true, mode: 'index', intersect: false }
                     },
                      scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: { display: true, text: 'kWh' }
-                        }
-                    }
+                        y: { beginAtZero: true, title: { display: true, text: 'Energía (kWh)' } },
+                        x: { title: { display: true, text: 'Mes' } }
+                    },
+                    animation: { duration: 800, easing: 'easeInOutQuart' }
                 }
             });
 
-             // --- TODO: Actualizar la visualización del tejado (más complejo) ---
-             // const resultsMapContainer = document.getElementById('results-map-container');
-             // resultsMapContainer.innerHTML = `Tejado (${area.toFixed(1)}m²) con ${estimatedKwp} kWp`; // Muy básico
+             const resultsMapContainer = document.getElementById('results-map-container');
+             resultsMapContainer.innerHTML = `Visualización Tejado (${area.toFixed(1)}m²) - Pendiente`;
         }
-
-        // --- Funciones Antiguas (Marcadores/Círculos) - Comentadas/Adaptadas ---
-        // Ya no se usan directamente al hacer clic, el dibujo es el método principal
-        /*
-        function calculateDestinationPoint(lat, lon, distance, bearing) { ... }
-        function createLabel(latlng, text, positionClass) { ... }
-        function addMarkerWithCirclesAndLabels(latlng) { ... } // Esta lógica se reemplazaría/adaptaría si se quiere un marcador además del dibujo
-        window.removeMarkerAndElements = function(markerId) { ... }
-        */
 
     </script>
 </body>
