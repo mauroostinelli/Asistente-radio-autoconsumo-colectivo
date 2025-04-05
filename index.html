@@ -4,437 +4,680 @@
     <base target="_top">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asistente Solar Interactivo v2.1</title>
+    <title>☀️ Explorador Solar Interactivo</title> <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" integrity="sha512-gc3xjCmIy673V6MyOORYZXCHcwKAUhQsEhPrmUPbDdaDcEJYOwqjvyhQuNzRn8hZV+FKdWShTRdB+vVdJAbv/g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js" integrity="sha512-ozq8xQKq6urvuU6jNgkfqAmT7jKN2XumbrX1JiB+rvFRYLNbFiAUrGscLhBOZo7cDEzaxlLRNYIVgLoNQdTtrg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <style>
-        html, body { height: 100%; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; overflow: hidden; }
+        /* --- Variables CSS para Tema Solar --- */
+        :root {
+            --primary-color: #FFC300; /* Amarillo Solar */
+            --secondary-color: #FF5733; /* Naranja Energía */
+            --accent-color: #4CAF50; /* Verde Eco (opcional) */
+            --text-color: #333;
+            --bg-color: #f8f9fa; /* Fondo claro */
+            --white: #ffffff;
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --shadow-medium: rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- Estilos Globales y Reset --- */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif; /* Aplicar nueva fuente */
+            background-color: var(--bg-color);
+            overflow: hidden; /* Evitar scrollbars innecesarios */
+        }
         * { box-sizing: border-box; }
-        .container { display: flex; flex-direction: column; height: 100vh; padding: 15px; }
 
-        .progress-container { width: 100%; background-color: #e0e0e0; border-radius: 5px; margin-bottom: 15px; overflow: hidden; }
-        .progress-bar { width: 0%; height: 15px; background-color: #ffc107; text-align: center; line-height: 15px; color: #333; font-size: 10px; font-weight: bold; border-radius: 5px 0 0 5px; transition: width 0.6s cubic-bezier(0.65, 0, 0.35, 1); }
-        .progress-steps { display: flex; justify-content: space-between; font-size: 12px; padding: 5px 0; color: #555; }
-        .progress-steps span { flex: 1; text-align: center; }
+        /* --- Mapa --- */
+        #map {
+            height: 100vh;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            filter: brightness(1); /* Inicial */
+            transition: filter 0.5s ease; /* Transición suave para filtros */
+        }
+        /* Efecto sutil al cargar o interactuar */
+        #map.loading {
+             filter: brightness(0.9) blur(1px);
+        }
 
-        .step { display: none; flex-grow: 1; overflow-y: auto; padding: 15px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .step.active { display: block; animation: fadeIn 0.5s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .navigation-buttons { padding-top: 15px; display: flex; justify-content: space-between; }
-        .nav-button { padding: 10px 25px; font-size: 16px; cursor: pointer; border: none; border-radius: 25px; transition: background-color 0.3s ease, transform 0.1s ease; }
-        #prev-button { background-color: #ccc; color: #555; }
-        #next-button { background-color: #ffc107; color: #333; font-weight: bold; }
-        .nav-button:hover { filter: brightness(0.95); }
-        .nav-button:active { transform: scale(0.98); }
-        .nav-button:disabled { background-color: #e0e0e0; cursor: not-allowed; color: #999; }
+        /* --- Indicador de Carga General --- */
+        #loading-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000; /* Encima de todo */
+            flex-direction: column;
+            transition: opacity 0.5s ease-out;
+        }
+        #loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .spinner {
+            border: 5px solid var(--shadow-light);
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        #loading-overlay p {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-        #map-container { position: relative; height: 400px; margin-bottom: 15px; }
-        #map { height: 100%; width: 100%; z-index: 1; border-radius: 8px; }
-        #search-container { position: absolute; top: 10px; left: 10px; z-index: 1050; width: 90%; max-width: 400px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; align-items: center; padding: 5px; }
-        #search-input { flex-grow: 1; height: 40px; padding: 0 15px; font-size: 16px; border: none; outline: none; border-radius: 4px; background: transparent; }
-        #suggestions-container { position: absolute; top: calc(100% + 5px); left: 0; width: 100%; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); max-height: 200px; overflow-y: auto; display: none; z-index: 1049; }
-        .suggestion-item { padding: 10px 15px; font-size: 14px; cursor: pointer; border-bottom: 1px solid #eee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* --- Barra de Búsqueda Mejorada --- */
+        #search-container {
+            position: absolute;
+            top: 20px;
+            left: 50%; /* Centrar */
+            transform: translateX(-50%); /* Ajuste fino para centrar */
+            z-index: 1050;
+            width: 90%;
+            max-width: 450px; /* Un poco más ancha */
+            background-color: var(--white);
+            border-radius: 30px; /* Más redondeada */
+            box-shadow: 0 4px 12px var(--shadow-medium);
+            display: flex;
+            align-items: center;
+            padding: 8px 15px; /* Ajustar padding */
+            transition: all 0.3s ease;
+        }
+         #search-container:focus-within { /* Efecto al enfocar el input */
+             box-shadow: 0 6px 16px rgba(255, 195, 0, 0.5);
+         }
+
+        #search-input {
+            flex-grow: 1;
+            height: 40px;
+            padding: 0 10px 0 35px; /* Espacio para icono */
+            font-size: 16px;
+            border: none;
+            outline: none;
+            border-radius: 30px;
+            background: transparent;
+            color: var(--text-color);
+            position: relative;
+        }
+         #search-input::placeholder {
+             color: #999;
+             font-weight: 300;
+         }
+
+         /* Icono de Lupa (usando pseudo-elemento) */
+         #search-container::before {
+             font-family: "Font Awesome 6 Free"; /* Necesitas Font Awesome */
+             content: "\f002"; /* Código del icono de lupa */
+             font-weight: 900;
+             position: absolute;
+             left: 20px;
+             top: 50%;
+             transform: translateY(-50%);
+             color: #aaa;
+             font-size: 16px;
+             z-index: 1; /* Asegurar que esté visible */
+         }
+
+        /* --- Contenedor de Sugerencias Mejorado --- */
+        #suggestions-container {
+            position: absolute;
+            top: calc(100% + 8px); /* Un poco más de espacio */
+            left: 0;
+            width: 100%;
+            background-color: var(--white);
+            border-radius: 15px; /* Bordes redondeados */
+            box-shadow: 0 4px 12px var(--shadow-light);
+            max-height: 350px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1049;
+            border: 1px solid #eee; /* Borde sutil */
+        }
+        .suggestion-item {
+            padding: 12px 20px;
+            font-size: 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            white-space: normal; /* Permitir wrap si es largo */
+            line-height: 1.4;
+            transition: background-color 0.2s ease;
+            color: var(--text-color);
+        }
         .suggestion-item:last-child { border-bottom: none; }
         .suggestion-item:hover { background-color: #f5f5f5; }
-        .suggestion-item small { display: block; color: #777; font-size: 11px; margin-top: 2px; }
 
-        .interactive-section { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
-        .interactive-section h3 { margin-top: 0; color: #0056b3; }
-        .image-selector img { width: 100px; height: 100px; object-fit: cover; border: 3px solid #ddd; border-radius: 8px; margin: 5px; cursor: pointer; transition: all 0.25s ease; filter: grayscale(50%); }
-        .image-selector img:hover { transform: scale(1.05); filter: grayscale(0%); }
-        .image-selector img.selected { border-color: #ffc107; box-shadow: 0 0 15px rgba(255, 193, 7, 0.6); transform: scale(1.08); filter: grayscale(0%); }
-        .slider-container { display: flex; align-items: center; margin-top: 10px; }
-        .slider-container label { width: 100px; margin-right: 10px; font-size: 14px; }
-        .slider-container input[type="range"] { flex-grow: 1; cursor: pointer; }
-        .slider-container span { min-width: 40px; text-align: right; font-weight: bold; font-size: 14px; margin-left: 10px;}
-        .icon-selector i { font-size: 24px; margin: 5px 10px; padding: 8px; border: 1px solid #ccc; border-radius: 50%; cursor: pointer; transition: background-color 0.3s, color 0.3s; }
-        .icon-selector i:hover { background-color: #f0f0f0; }
-        .icon-selector i.selected { background-color: #ffc107; color: #fff; border-color: #ffc107; }
+        /* Estilo para el nombre principal y detalles */
+        .suggestion-item strong {
+            font-weight: 600;
+            color: var(--primary-color); /* Destacar nombre */
+            display: block; /* Para que ocupe su línea */
+            margin-bottom: 3px;
+        }
+        .suggestion-item small {
+            display: block;
+            color: #666;
+            font-size: 13px;
+            font-weight: 300;
+        }
 
-        #results-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        .result-card { background-color: #e9f5ff; padding: 15px; border-radius: 8px; text-align: center; }
-        .result-card h4 { margin-top: 0; color: #0056b3; }
-        .result-value { font-size: 24px; font-weight: bold; color: #003d7a; margin: 5px 0; min-height: 30px; }
-        #chart-container { margin-top: 20px; background-color: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 1px 5px rgba(0,0,0,0.05);}
-        #results-map-container { height: 250px; background-color: #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-style: italic; color: #777; margin-top: 15px;}
+        /* Estilo para mensajes (Buscando..., Error) */
+        .suggestion-message {
+            padding: 15px 20px;
+            color: #888;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+         .suggestion-message .spinner-small { /* Spinner pequeño para búsqueda */
+             width: 18px; height: 18px;
+             border-width: 2px;
+             border-top-color: var(--secondary-color); /* Otro color para variar */
+             margin-right: 8px;
+             animation: spin 0.8s linear infinite;
+             /* Hereda la animación 'spin' definida antes */
+         }
+
+
+        /* --- Controles Leaflet Personalizados --- */
+        .leaflet-control-zoom, .leaflet-control-layers {
+            border: none !important;
+            border-radius: 8px !important;
+            box-shadow: 0 2px 8px var(--shadow-medium) !important;
+        }
+        .leaflet-control-layers-toggle {
+            background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23333"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-12h2v4h4v2h-4v4h-2v-4H7v-2h4V8z"/></svg>') !important; /* Icono personalizado (ejemplo) */
+             background-size: 18px 18px !important;
+        }
+        .leaflet-control-zoom a { /* Botones +/- */
+            color: var(--primary-color) !important;
+             font-weight: bold !important;
+        }
+
+
+        /* --- Popups Temáticos --- */
+        .leaflet-popup-content-wrapper {
+            background-color: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 3px 15px var(--shadow-medium);
+        }
+        .leaflet-popup-content {
+            margin: 15px 20px !important;
+            font-size: 14px;
+            line-height: 1.6;
+            text-align: center;
+            color: var(--text-color);
+        }
+        .popup-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--secondary-color); /* Naranja */
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        .popup-coords {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 15px;
+        }
+        .popup-coords span { /* Etiqueta Lat/Lng */
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        /* Botón Eliminar Mejorado */
+        .popup-delete-button {
+            margin-top: 10px;
+            padding: 8px 18px;
+            cursor: pointer;
+            background: linear-gradient(45deg, #ff6b6b, #ee5253); /* Gradiente rojo */
+            color: white;
+            border: none;
+            border-radius: 20px; /* Redondeado */
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(255, 107, 107, 0.4);
+        }
+        .popup-delete-button:hover {
+            background: linear-gradient(45deg, #ee5253, #ff6b6b);
+            box-shadow: 0 4px 8px rgba(255, 107, 107, 0.6);
+            transform: translateY(-1px); /* Efecto sutil hover */
+        }
+        .popup-delete-button i { /* Icono papelera */
+             margin-right: 5px;
+        }
+
+        /* --- Círculos de Radio Mejorados (Con Animación) --- */
+        .autoconsumo-circle {
+             /* stroke-dasharray: 10, 5;  Línea discontinua (opcional) */
+             animation: pulse-circle 2.5s infinite ease-out;
+        }
+
+         @keyframes pulse-circle {
+             0% { opacity: var(--initial-opacity, 0.4); transform: scale(1); }
+             50% { opacity: calc(var(--initial-opacity, 0.4) * 0.5); transform: scale(1.02); } /* Pulso sutil */
+             100% { opacity: var(--initial-opacity, 0.4); transform: scale(1); }
+         }
+
+        /* --- Etiquetas de Radio Mejoradas --- */
+        .radius-label {
+             background: rgba(255, 255, 255, 0.7); /* Fondo semitransparente */
+             border: none;
+             color: var(--secondary-color); /* Naranja */
+             font-weight: 600; /* Más grueso */
+             font-size: 11px; /* Ligeramente más grande */
+             padding: 2px 5px; /* Pequeño padding */
+             border-radius: 4px; /* Bordes suaves */
+             box-shadow: 0 1px 3px var(--shadow-light);
+             white-space: nowrap;
+             text-align: center;
+             pointer-events: none; /* No interactuable */
+        }
+        /* Ajustes de posición (iguales, pero el estilo base mejora legibilidad) */
+        .label-north { transform: translate(-50%, -150%); } /* Un poco más arriba */
+        .label-south { transform: translate(-50%, 50%); }  /* Un poco más abajo */
+        .label-east { transform: translate(30%, -50%); }  /* Un poco más a la derecha */
+        .label-west { transform: translate(-130%, -50%); } /* Un poco más a la izquierda */
 
     </style>
 </head>
 <body>
-    <div class="container">
 
-        <div class="progress-steps">
-            <span>Ubicación</span>
-            <span>Tejado</span>
-            <span>Consumo</span>
-            <span>Resultados</span>
-        </div>
-        <div class="progress-container">
-            <div class="progress-bar" id="progress-bar"></div>
-        </div>
-
-        <div class="steps-container">
-            <div id="step-1" class="step active">
-                <h2>Paso 1: Dinos dónde está tu tejado</h2>
-                <p>Busca tu dirección o haz clic directamente en el mapa. Luego, dibuja el área de tu tejado.</p>
-                <div id="search-container">
-                    <input type="text" id="search-input" placeholder="Buscar dirección en España...">
-                    <div id="suggestions-container"></div>
-                </div>
-                <div id="map-container">
-                    <div id="map"></div>
-                </div>
-                <button id="draw-roof-button" class="nav-button" style="background-color: #007bff; color: white; margin-top: 10px;">✏️ Dibujar Área del Tejado</button>
-                 <div id="area-info" style="margin-top: 10px; font-weight: bold;"></div>
-            </div>
-
-            <div id="step-2" class="step">
-                <h2>Paso 2: Cuéntanos sobre tu tejado</h2>
-                <div class="interactive-section">
-                    <h3>Tipo de Tejado</h3>
-                    <p>Selecciona la imagen que mejor represente tu tejado:</p>
-                    <div class="image-selector" id="roof-type-selector">
-                        <img src="https://via.placeholder.com/100/cccccc/ffffff?text=Plano" alt="Tejado Plano" data-value="plano">
-                        <img src="https://via.placeholder.com/100/cccccc/ffffff?text=Inclinado" alt="Tejado Inclinado" data-value="inclinado">
-                        <img src="https://via.placeholder.com/100/cccccc/ffffff?text=Dos+Aguas" alt="Tejado a Dos Aguas" data-value="dos_aguas">
-                        <img src="https://via.placeholder.com/100/cccccc/ffffff?text=Complejo" alt="Tejado Complejo" data-value="complejo">
-                    </div>
-                </div>
-                <div class="interactive-section">
-                    <h3>Orientación e Inclinación</h3>
-                    <div class="slider-container">
-                        <label for="orientation-slider">Orientación:</label>
-                        <input type="range" id="orientation-slider" name="orientation" min="0" max="360" value="180">
-                        <span id="orientation-value">Sur (180°)</span>
-                    </div>
-                     <div class="slider-container">
-                        <label for="tilt-slider">Inclinación:</label>
-                        <input type="range" id="tilt-slider" name="tilt" min="0" max="60" value="30">
-                        <span id="tilt-value">30°</span>
-                    </div>
-                </div>
-                 <div class="interactive-section">
-                    <h3>Obstáculos y Sombras</h3>
-                    <p>¿Hay alguno de estos elementos que proyecte sombra sobre el tejado?</p>
-                    <div class="icon-selector" id="obstacle-selector">
-                        <i class="fas fa-tree" data-value="arbol" title="Árboles cercanos">🌳</i>
-                        <i class="fas fa-building" data-value="edificio" title="Edificios cercanos">🏢</i>
-                        <i class="fas fa-chimney" data-value="chimenea" title="Chimenea">🧱</i>
-                         <i class="fas fa-satellite-dish" data-value="antena" title="Antena">📡</i>
-                    </div>
-                </div>
-            </div>
-
-            <div id="step-3" class="step">
-                <h2>Paso 3: ¿Cuánta energía consumes?</h2>
-                <p>Indica tu gasto mensual aproximado en electricidad o tu consumo.</p>
-                 <div class="interactive-section">
-                     <h3>Gasto Mensual (€)</h3>
-                     <div class="slider-container">
-                         <label for="bill-slider">Gasto Aprox:</label>
-                         <input type="range" id="bill-slider" name="bill" min="20" max="500" value="80" step="5">
-                         <span id="bill-value">80 €</span>
-                     </div>
-                     <p style="font-size: 12px; color: #555; text-align: center;">O introduce tu consumo medio mensual (kWh) si lo conoces:</p>
-                     <input type="number" id="kwh-input" placeholder="Ej: 300 kWh" style="width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px;">
-                 </div>
-            </div>
-
-            <div id="step-4" class="step">
-                <h2>Paso 4: ¡Este es tu Potencial Solar!</h2>
-                <p>Basado en la información proporcionada, esta es una estimación:</p>
-                <div id="results-container">
-                    <div class="result-card">
-                        <h4>Ahorro Anual Estimado</h4>
-                        <div class="result-value" id="result-savings">0 €</div>
-                    </div>
-                    <div class="result-card">
-                        <h4>Instalación Recomendada</h4>
-                        <div class="result-value" id="result-kwp">--- kWp</div>
-                    </div>
-                     <div class="result-card">
-                        <h4>Producción Anual</h4>
-                        <div class="result-value" id="result-production">--- kWh</div>
-                    </div>
-                     <div class="result-card">
-                        <h4>Impacto Ambiental (CO2 evitado/año)</h4>
-                        <div class="result-value" id="result-co2">--- kg</div>
-                    </div>
-                </div>
-                <div id="chart-container">
-                    <canvas id="resultsChart"></canvas>
-                </div>
-                <div id="results-map-container">
-                     Visualización del tejado (próximamente)
-                 </div>
-                <p style="margin-top: 20px; text-align: center; font-weight: bold;">¿Quieres un estudio detallado y gratuito?</p>
-                <button class="nav-button" style="width: 100%; background-color: #28a745; color: white; margin-top: 10px;">¡Sí, Solicitar Estudio Personalizado!</button>
-            </div>
-        </div>
-
-        <div class="navigation-buttons">
-            <button id="prev-button" class="nav-button" disabled>Anterior</button>
-            <button id="next-button" class="nav-button">Siguiente</button>
-        </div>
-
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <p>Cargando Explorador Solar...</p>
     </div>
 
-    <script>
-        let currentStep = 0;
-        const steps = document.querySelectorAll('.step');
-        const progressBar = document.getElementById('progress-bar');
-        const prevButton = document.getElementById('prev-button');
-        const nextButton = document.getElementById('next-button');
-        const totalSteps = steps.length;
-        let map;
-        let drawnItems;
-        let drawControl;
-        let userPolygon = null;
-        const markersData = {};
-        const initialCoords = [40.103, -4.384];
-        const initialZoom = 7;
-        let resultsChartInstance = null;
+    <div id="map"></div>
 
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeMap();
-            setupStepNavigation();
-            updateProgressBar();
-            setupSearch();
-            setupInteractiveElements();
-            console.log("Asistente Solar listo.");
+    <div id="search-container">
+        <input type="text" id="search-input" placeholder="Busca tu dirección o localidad...">
+        <div id="suggestions-container"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+
+    <script>
+        // --- Configuración Inicial del Mapa ---
+        const initialCoords = [40.103, -4.384]; // España centro
+        const initialZoom = 7;
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const mapElement = document.getElementById('map');
+
+        mapElement.classList.add('loading'); // Oscurecer mapa al inicio
+
+        const map = L.map('map', {
+            zoomControl: false, // Desactivado, usamos el control personalizado
+            attributionControl: false // Desactivado, añadiremos uno personalizado si hace falta
+        }).setView(initialCoords, initialZoom);
+
+         // --- Añadir Atribución Personalizada (mejor en esquina) ---
+         L.control.attribution({
+             position: 'bottomright', // Posición estándar
+             prefix: '<a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>' // Mantener atribución de Leaflet
+         }).addTo(map);
+
+
+        // --- Indicador de Carga ---
+        // Ocultar overlay cuando el mapa esté listo y la capa base cargada
+        map.whenReady(() => {
+             // Puede que las teselas tarden un poco más
+             // Escuchamos el evento 'load' de la capa inicial
+             streetLayer.once('load', () => {
+                 loadingOverlay.classList.add('hidden');
+                 mapElement.classList.remove('loading'); // Restaurar brillo
+             });
+             // Fallback por si 'load' no se dispara o tarda mucho
+             setTimeout(() => {
+                 if (!loadingOverlay.classList.contains('hidden')) {
+                     loadingOverlay.classList.add('hidden');
+                     mapElement.classList.remove('loading');
+                 }
+             }, 3000); // Espera máximo 3 segundos
         });
 
-        function setupStepNavigation() {
-            prevButton.addEventListener('click', () => changeStep(-1));
-            nextButton.addEventListener('click', () => {
-                 if (validateStep(currentStep)) {
-                     if (currentStep === totalSteps - 1) {
-                         nextButton.textContent = "Finalizado";
-                         nextButton.disabled = true;
-                     } else {
-                         changeStep(1);
-                     }
+
+        // --- Controles Leaflet (Zoom y Capas) ---
+        L.control.zoom({ position: 'bottomright' }).addTo(map); // Zoom abajo-derecha (ya estaba)
+
+        // Capas Base con gestión de errores mejorada
+        const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OSM</a>' // Atribución más corta
+        });
+        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19,
+            attribution: 'Tiles &copy; Esri' // Atribución más corta
+        });
+
+        streetLayer.on('tileerror', function(error, tile) {
+            console.warn('Error al cargar tesela de calles:', error.error, tile.src);
+            // Podrías mostrar un aviso sutil al usuario si fallan muchas teselas
+        });
+        satelliteLayer.on('tileerror', function(error, tile) {
+            console.warn('Error al cargar tesela de satélite:', error.error, tile.src);
+        });
+
+        streetLayer.addTo(map); // Añadir capa inicial
+
+        const baseMaps = {
+            "<i class='fas fa-road'></i> Calles": streetLayer, // Icono opcional
+            "<i class='fas fa-satellite'></i> Satélite": satelliteLayer // Icono opcional
+        };
+
+        L.control.layers(baseMaps, null, {
+            position: 'bottomleft', // Posición (ya estaba)
+            collapsed: true // Mantener colapsado por defecto
+        }).addTo(map);
+
+
+        // --- Lógica Barra de Búsqueda (Mejorada con Spinner) ---
+        const searchInput = document.getElementById('search-input');
+        const suggestionsContainer = document.getElementById('suggestions-container');
+        const searchContainer = document.getElementById('search-container');
+        let debounceTimer;
+
+        function displaySuggestions(results) {
+            suggestionsContainer.innerHTML = ''; // Limpiar (incluso el spinner)
+            if (results === null || results === undefined) {
+                 // Mostrar error directamente en el contenedor
+                 suggestionsContainer.innerHTML = '<div class="suggestion-message">😕 Error al buscar. Intenta de nuevo.</div>';
+                 suggestionsContainer.style.display = 'block';
+                 return;
+            }
+            if (!results || results.length === 0) {
+                 suggestionsContainer.style.display = 'none';
+                 return;
+            }
+
+            results.forEach(place => {
+                 const item = document.createElement('div');
+                 item.classList.add('suggestion-item');
+
+                 // Intentar obtener un nombre más significativo
+                 let mainName = place.address?.amenity || place.address?.shop || place.address?.tourism || place.address?.building || place.name || place.display_name.split(',')[0];
+                 let details = [
+                     place.address?.road || place.address?.pedestrian,
+                     place.address?.house_number,
+                     place.address?.suburb,
+                     place.address?.city || place.address?.town || place.address?.village,
+                     place.address?.state,
+                     place.address?.country
+                 ].filter(Boolean).join(', ');
+
+                 // Evitar redundancia si el nombre principal ya está en los detalles
+                 if (details.toLowerCase().includes(mainName.toLowerCase())) {
+                      mainName = place.display_name.split(',')[0]; // Usar el primero si hay redundancia
                  }
+
+
+                 item.innerHTML = `<strong>${mainName}</strong><small>${details || place.display_name}</small>`; // Usar strong y small
+                 item.dataset.lat = place.lat;
+                 item.dataset.lon = place.lon;
+                 item.dataset.displayName = mainName; // Guardar el nombre usado
+
+                 if (place.boundingbox && place.boundingbox.length === 4) {
+                     item.dataset.bbox = place.boundingbox.join(',');
+                 } else {
+                     item.dataset.bbox = '';
+                 }
+
+                 item.addEventListener('click', () => {
+                     const lat = parseFloat(item.dataset.lat);
+                     const lon = parseFloat(item.dataset.lon);
+                     const bboxStr = item.dataset.bbox;
+                     let bbox = null;
+
+                     if (bboxStr) {
+                         bbox = bboxStr.split(',').map(Number);
+                     }
+
+                     // Priorizar BBox para mejor encuadre
+                     if (bbox && bbox.length === 4 && (bbox[1] - bbox[0]) > 0.001 && (bbox[3] - bbox[2]) > 0.001) { // Evitar BBox demasiado pequeños
+                         map.flyToBounds([[bbox[0], bbox[2]], [bbox[1], bbox[3]]], { padding: [50, 50], maxZoom: 17 }); // Vuelo suave con padding
+                     } else if (!isNaN(lat) && !isNaN(lon)) {
+                         map.flyTo([lat, lon], 16, { duration: 1 }); // Vuelo más rápido a zoom 16
+                     }
+
+                     searchInput.value = item.dataset.displayName; // Usar el nombre limpio guardado
+                     suggestionsContainer.innerHTML = '';
+                     suggestionsContainer.style.display = 'none';
+                 });
+                 suggestionsContainer.appendChild(item);
+            });
+            suggestionsContainer.style.display = 'block';
+        }
+
+        function showSearchError(errorDetails) {
+            console.error("Error en google.script.run:", errorDetails);
+             suggestionsContainer.innerHTML = '<div class="suggestion-message">❌ Error del servidor al buscar.</div>';
+             suggestionsContainer.style.display = 'block';
+        }
+
+        function triggerSearch() {
+            const query = searchInput.value.trim();
+            if (query.length < 3) {
+                 suggestionsContainer.innerHTML = '';
+                 suggestionsContainer.style.display = 'none';
+                 return;
+            }
+
+            // Mostrar indicador de búsqueda con spinner
+            suggestionsContainer.innerHTML = `<div class="suggestion-message"><div class="spinner spinner-small"></div>Buscando '${query}'...</div>`;
+            suggestionsContainer.style.display = 'block';
+
+            // Llamada a Google Apps Script
+            google.script.run
+                .withSuccessHandler(displaySuggestions)
+                .withFailureHandler(showSearchError)
+                .searchNominatim(query); // Asegúrate que esta función exista en tu Code.gs
+        }
+
+        // Debounce para no llamar a la API en cada tecla
+        searchInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(triggerSearch, 450); // Ligero aumento del tiempo
+        });
+
+        // Cerrar sugerencias si se hace clic fuera
+        document.addEventListener('click', (event) => {
+             // Asegurarse que searchContainer existe antes de llamar a contains
+            if (searchContainer && !searchContainer.contains(event.target)) {
+                suggestionsContainer.style.display = 'none';
+            }
+        });
+
+
+        // --- Lógica de Marcadores/Círculos/Etiquetas (Con Mejoras Visuales) ---
+        const markersData = {}; // Almacena { marker, circles, labels }
+
+        // Función para calcular puntos (sin cambios)
+        function calculateDestinationPoint(lat, lon, distance, bearing) {
+            const R = 6371e3; // Radio Tierra en metros
+            const lat1Rad = lat * Math.PI / 180;
+            const lon1Rad = lon * Math.PI / 180;
+            const bearingRad = bearing * Math.PI / 180;
+            const dRad = distance / R; // Distancia angular
+
+            const lat2Rad = Math.asin(Math.sin(lat1Rad) * Math.cos(dRad) +
+                                     Math.cos(lat1Rad) * Math.sin(dRad) * Math.cos(bearingRad));
+            const lon2Rad = lon1Rad + Math.atan2(Math.sin(bearingRad) * Math.sin(dRad) * Math.cos(lat1Rad),
+                                              Math.cos(dRad) - Math.sin(lat1Rad) * Math.sin(lat2Rad));
+
+            return L.latLng(lat2Rad * 180 / Math.PI, lon2Rad * 180 / Math.PI);
+        }
+
+        // Función para crear etiquetas (ahora usa el estilo CSS .radius-label)
+        function createLabel(latlng, text, positionClass) {
+            const labelIcon = L.divIcon({
+                 className: `radius-label ${positionClass}`, // Clases para estilo y posición
+                 html: text,
+                 iconSize: null, // Tamaño automático basado en contenido y CSS
+                 iconAnchor: [0, 0] // Ajustar ancla según las clases de posición en CSS
+            });
+            return L.marker(latlng, {
+                icon: labelIcon,
+                interactive: false, // No capturar clics
+                pane: 'shadowPane' // Dibujar debajo de marcadores (o 'tooltipPane' para encima)
+            }).addTo(map);
+        }
+
+        // Función principal para añadir marcador y elementos asociados
+        function addMarkerWithCirclesAndLabels(latlng) {
+             // Crear un icono personalizado para el marcador (ej: un sol)
+             const solarIcon = L.divIcon({
+                 html: '<i class="fas fa-solar-panel fa-2x" style="color: var(--primary-color);"></i>', // Icono de panel solar
+                 className: 'solar-marker-icon', // Clase para posible estilo adicional
+                 iconSize: [30, 30],
+                 iconAnchor: [15, 30] // Ancla en la base central del icono
              });
-            showStep(currentStep);
-        }
 
-        function changeStep(direction) {
-            const newStep = currentStep + direction;
-            if (newStep >= 0 && newStep < totalSteps) {
-                currentStep = newStep;
-                showStep(currentStep);
-            }
-        }
+            const marker = L.marker(latlng, {
+                 // icon: solarIcon, // Usar el icono personalizado
+                 draggable: false // Podría ser true si quieres permitir moverlo
+            }).addTo(map);
 
-        function showStep(stepIndex) {
-            steps.forEach((step, index) => {
-                step.classList.toggle('active', index === stepIndex);
-            });
-            updateButtonStates();
-            updateProgressBar();
-             if (stepIndex === totalSteps - 1) {
-                calculateAndShowResults();
-                nextButton.textContent = "Finalizar";
-             } else {
-                 nextButton.textContent = "Siguiente";
-             }
-        }
+            const markerId = L.Util.stamp(marker); // ID único para el marcador
 
-        function updateButtonStates() {
-            prevButton.disabled = currentStep === 0;
-            nextButton.disabled = (currentStep === totalSteps - 1);
-        }
+            const radii = [
+                { radius: 500,  label: "500m", color: '#FFC300', opacity: 0.45 }, // Amarillo solar, más opaco
+                { radius: 2000, label: "2km",  color: '#FF5733', opacity: 0.25 }  // Naranja energía, más transparente
+            ];
+            // Orientaciones para las etiquetas (N, S, E, O)
+            const bearings = [
+                { bearing: 0,   posClass: 'label-north' }, // Norte
+                { bearing: 180, posClass: 'label-south' }, // Sur
+                { bearing: 90,  posClass: 'label-east' },  // Este
+                { bearing: 270, posClass: 'label-west' }   // Oeste
+            ];
 
-        function updateProgressBar() {
-            const progressPercentage = ((currentStep + 1) / totalSteps) * 100;
-            progressBar.style.width = `${progressPercentage}%`;
-            progressBar.textContent = `Paso ${currentStep + 1} de ${totalSteps}`;
-        }
+            const createdCircles = [];
+            const createdLabels = [];
 
-        function validateStep(stepIndex) {
-             console.log(`Validando paso ${stepIndex + 1}`);
-             if (stepIndex === 0) { if (!userPolygon) { alert("Por favor, dibuja el área de tu tejado en el mapa."); return false; } }
-             if (stepIndex === 1) { if (!document.querySelector('.image-selector img.selected')) { alert("Selecciona el tipo de tejado."); return false; } }
-             if (stepIndex === 2) { const bill = document.getElementById('bill-slider').value; const kwh = document.getElementById('kwh-input').value; if (bill <= 20 && !kwh) { alert("Indica tu gasto o consumo energético."); return false; } }
-            return true;
-        }
+            try {
+                radii.forEach(rInfo => {
+                    const circle = L.circle(latlng, {
+                        radius: rInfo.radius,
+                        color: rInfo.color,        // Color del borde
+                        fillColor: rInfo.color,    // Color de relleno
+                        fillOpacity: rInfo.opacity,
+                        weight: 1.5,               // Grosor del borde
+                        className: 'autoconsumo-circle' // Clase para la animación CSS
+                    }).addTo(map);
 
-        function initializeMap() {
-            map = L.map('map', { zoomControl: false, attributionControl: true }).setView(initialCoords, initialZoom);
-            L.control.zoom({ position: 'bottomright' }).addTo(map);
-            const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OSM</a> contributors' });
-            const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Tiles &copy; Esri' });
-            streetLayer.addTo(map);
-            const baseMaps = { "Calles": streetLayer, "Satélite": satelliteLayer };
-            L.control.layers(baseMaps, null, { position: 'bottomleft' }).addTo(map);
-            drawnItems = new L.FeatureGroup();
-            map.addLayer(drawnItems);
-            document.getElementById('draw-roof-button').addEventListener('click', () => { startDrawing(); });
-            map.on(L.Draw.Event.CREATED, handleDrawCreate);
-            map.on(L.Draw.Event.EDITED, handleDrawEdit);
-            map.on(L.Draw.Event.DELETED, handleDrawDelete);
-        }
+                    // Añadir la opacidad inicial como variable CSS para la animación
+                    circle.getElement().style.setProperty('--initial-opacity', rInfo.opacity);
 
-         function startDrawing() {
-            if (drawControl) map.removeControl(drawControl);
-            if (userPolygon) { drawnItems.removeLayer(userPolygon); userPolygon = null; document.getElementById('area-info').textContent = ''; }
-            drawControl = new L.Control.Draw({ position: 'topright', draw: { polygon: { allowIntersection: false, shapeOptions: { color: '#ffc107', fillColor: '#ffc107', fillOpacity: 0.4 }, showArea: true, metric: true }, polyline: false, rectangle: false, circle: false, marker: false, circlemarker: false }, edit: { featureGroup: drawnItems, remove: true } });
-            map.addControl(drawControl);
-            alert("Herramienta de dibujo activada. Haz clic en el mapa para empezar a dibujar las esquinas de tu tejado. Doble clic para finalizar.");
-        }
+                    createdCircles.push(circle);
 
-        function handleDrawCreate(event) {
-            const layer = event.layer;
-            if (userPolygon) drawnItems.removeLayer(userPolygon);
-            userPolygon = layer;
-            drawnItems.addLayer(layer);
-            const area = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]);
-            document.getElementById('area-info').textContent = `Área dibujada: ${area.toFixed(2)} m²`;
-        }
-
-        function handleDrawEdit(event) { event.layers.eachLayer(layer => { if (layer instanceof L.Polygon) { userPolygon = layer; const area = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]); document.getElementById('area-info').textContent = `Área actualizada: ${area.toFixed(2)} m²`; } }); }
-
-        function handleDrawDelete(event) { event.layers.eachLayer(layer => { if (layer === userPolygon) { userPolygon = null; document.getElementById('area-info').textContent = ''; } }); }
-
-        function setupSearch() {
-            const searchInput = document.getElementById('search-input');
-            const suggestionsContainer = document.getElementById('suggestions-container');
-            const searchContainer = document.getElementById('search-container');
-            let debounceTimer;
-            function displaySuggestions(results) { suggestionsContainer.innerHTML = ''; if (results === null) { showSearchError("Error en el servidor."); return; } if (!results || results.length === 0) { suggestionsContainer.style.display = 'none'; return; } results.forEach(place => { const item = document.createElement('div'); item.classList.add('suggestion-item'); let displayName = place.display_name; let addressDetails = ''; if (place.address) { addressDetails = [ place.address.road || place.address.pedestrian, place.address.house_number, place.address.city || place.address.town || place.address.village, place.address.state ].filter(Boolean).join(', '); displayName = place.address.amenity || place.address.shop || place.address.tourism || place.name || displayName.split(',')[0]; } item.innerHTML = `${displayName} ${addressDetails ? `<small>${addressDetails}</small>` : ''}`; item.dataset.lat = place.lat; item.dataset.lon = place.lon; if (place.boundingbox && place.boundingbox.length === 4) { item.dataset.bbox = place.boundingbox.join(','); } else { item.dataset.bbox = ''; } item.addEventListener('click', () => { const lat = parseFloat(item.dataset.lat); const lon = parseFloat(item.dataset.lon); const bboxStr = item.dataset.bbox; let bbox = null; if (bboxStr) { bbox = bboxStr.split(',').map(Number); } if (bbox && bbox.length === 4) { map.fitBounds([[bbox[0], bbox[2]], [bbox[1], bbox[3]]]); } else if (!isNaN(lat) && !isNaN(lon)) { map.flyTo([lat, lon], 17); } searchInput.value = displayName; suggestionsContainer.innerHTML = ''; suggestionsContainer.style.display = 'none'; }); suggestionsContainer.appendChild(item); }); suggestionsContainer.style.display = 'block'; }
-            function showSearchError(errorDetails) { console.error("Error búsqueda:", errorDetails); suggestionsContainer.innerHTML = '<div class="suggestion-item" style="color: red;">Error al buscar.</div>'; suggestionsContainer.style.display = 'block'; }
-            function triggerSearch() { const query = searchInput.value; if (query.length < 3) { suggestionsContainer.innerHTML = ''; suggestionsContainer.style.display = 'none'; return; } suggestionsContainer.innerHTML = '<div class="suggestion-item" style="color: grey;">Buscando...</div>'; suggestionsContainer.style.display = 'block'; google.script.run .withSuccessHandler(displaySuggestions) .withFailureHandler(showSearchError) .searchNominatim(query); }
-            searchInput.addEventListener('input', () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(triggerSearch, 400); });
-            document.addEventListener('click', (event) => { if (searchContainer && !searchContainer.contains(event.target)) { suggestionsContainer.style.display = 'none'; } });
-        }
-
-        function setupInteractiveElements() {
-            const roofImages = document.querySelectorAll('#roof-type-selector img');
-            roofImages.forEach(img => {
-                img.addEventListener('click', () => {
-                    roofImages.forEach(i => i.classList.remove('selected'));
-                    img.classList.add('selected');
-                    console.log("Tipo tejado:", img.dataset.value);
+                    // Crear etiquetas para cada radio en las 4 direcciones
+                    bearings.forEach(bInfo => {
+                        const labelLatLng = calculateDestinationPoint(latlng.lat, latlng.lng, rInfo.radius, bInfo.bearing);
+                        createdLabels.push(createLabel(labelLatLng, rInfo.label, bInfo.posClass));
+                    });
                 });
-            });
-            const orientationSlider = document.getElementById('orientation-slider');
-            const orientationValue = document.getElementById('orientation-value');
-            orientationSlider.addEventListener('input', () => { const value = parseInt(orientationSlider.value); let direction = "Norte"; if (value > 337.5 || value <= 22.5) direction = "Norte"; else if (value <= 67.5) direction = "Noreste"; else if (value <= 112.5) direction = "Este"; else if (value <= 157.5) direction = "Sureste"; else if (value <= 202.5) direction = "Sur"; else if (value <= 247.5) direction = "Suroeste"; else if (value <= 292.5) direction = "Oeste"; else if (value <= 337.5) direction = "Noroeste"; orientationValue.textContent = `${direction} (${value}°)`; });
-            orientationSlider.dispatchEvent(new Event('input'));
-            const tiltSlider = document.getElementById('tilt-slider');
-            const tiltValue = document.getElementById('tilt-value');
-            tiltSlider.addEventListener('input', () => { tiltValue.textContent = `${tiltSlider.value}°`; });
-            tiltSlider.dispatchEvent(new Event('input'));
-            const obstacleIcons = document.querySelectorAll('#obstacle-selector i');
-             obstacleIcons.forEach(icon => { icon.addEventListener('click', () => { icon.classList.toggle('selected'); console.log("Obstáculos:", Array.from(document.querySelectorAll('#obstacle-selector i.selected')).map(i => i.dataset.value)); }); });
-             const billSlider = document.getElementById('bill-slider');
-             const billValue = document.getElementById('bill-value');
-             const kwhInput = document.getElementById('kwh-input');
-             billSlider.addEventListener('input', () => { billValue.textContent = `${billSlider.value} €`; kwhInput.value = ''; });
-             kwhInput.addEventListener('input', () => { billSlider.value = 20; billValue.textContent = `20 €`; });
-            billSlider.dispatchEvent(new Event('input'));
-        }
 
-        function animateCounter(elementId, targetValue, duration = 1500, suffix = ' €') {
-            const element = document.getElementById(elementId);
-            if (!element) return;
-            const startValue = 0;
-            const range = targetValue - startValue;
-            let startTime = null;
-            function step(timestamp) {
-                if (!startTime) startTime = timestamp;
-                const progress = timestamp - startTime;
-                const increment = Math.min(progress / duration, 1);
-                const currentValue = Math.floor(startValue + range * increment);
-                element.textContent = currentValue + suffix;
-                if (increment < 1) {
-                    requestAnimationFrame(step);
-                } else {
-                     element.textContent = targetValue + suffix;
-                }
+                // Guardar referencias para poder eliminar todo junto
+                markersData[markerId] = {
+                    marker: marker,
+                    circles: createdCircles,
+                    labels: createdLabels
+                };
+
+                // Crear contenido del Popup mejorado
+                const popupContent = `
+                    <div class="popup-title">📍 Punto Seleccionado</div>
+                    <div class="popup-coords">
+                        <span>Lat:</span> ${latlng.lat.toFixed(5)}<br>
+                        <span>Lng:</span> ${latlng.lng.toFixed(5)}
+                    </div>
+                    <div style="font-size: 12px; color: #777; margin-bottom: 15px;">Radios de autoconsumo: 500m y 2km</div>
+                    <button class="popup-delete-button" onclick="removeMarkerAndElements(${markerId})">
+                        <i class="fas fa-trash-alt"></i> Eliminar Punto
+                    </button>
+                `;
+
+                marker.bindPopup(popupContent).openPopup(); // Abrir popup al crear
+
+                // Asegurar que el popup se abre al hacer clic de nuevo
+                marker.on('click', () => marker.openPopup());
+
+                // Opcional: Animar la aparición del marcador (requiere CSS adicional)
+                // marker.getElement().classList.add('marker-appear-animation');
+
+            } catch (e) {
+                console.error("Error al crear círculos/etiquetas:", e);
+                // Limpieza en caso de error
+                if (marker) map.removeLayer(marker);
+                createdCircles.forEach(c => map.removeLayer(c));
+                createdLabels.forEach(l => map.removeLayer(l));
+                delete markersData[markerId];
+                alert("Hubo un problema al añadir el punto. Por favor, inténtalo de nuevo.");
             }
-            requestAnimationFrame(step);
         }
 
-        function calculateAndShowResults() {
-            console.log("Calculando resultados...");
-            const locationData = userPolygon ? userPolygon.toGeoJSON() : null;
-            const area = userPolygon ? L.GeometryUtil.geodesicArea(userPolygon.getLatLngs()[0]) : 0;
-            const roofType = document.querySelector('.image-selector img.selected')?.dataset.value;
-            const orientation = document.getElementById('orientation-slider').value;
-            const tilt = document.getElementById('tilt-slider').value;
-             const obstacles = Array.from(document.querySelectorAll('#obstacle-selector i.selected')).map(i => i.dataset.value);
-            const bill = document.getElementById('bill-slider').value;
-            const kwh = document.getElementById('kwh-input').value;
+        // Función para eliminar todo (marcador, círculos, etiquetas) - Mejorada
+        window.removeMarkerAndElements = function(markerId) {
+            const data = markersData[markerId];
+            if (data) {
+                // Eliminar gradualmente para un efecto suave (opcional)
+                data.labels.forEach(label => map.removeLayer(label));
+                data.circles.forEach(circle => map.removeLayer(circle));
+                map.removeLayer(data.marker); // Eliminar marcador al final
 
-            const estimatedKwp = Math.max(0, (area / 8 - obstacles.length * 0.5)).toFixed(1);
-            const estimatedProduction = (estimatedKwp * 1500).toFixed(0);
-            const estimatedSavingsRaw = Math.max(0, (bill * 12 * 0.6));
-            const co2Avoided = (estimatedProduction * 0.3).toFixed(0);
+                delete markersData[markerId]; // Limpiar la referencia
+            } else {
+                console.warn("Intento de eliminar marcador no encontrado con ID:", markerId);
+            }
+        }
 
-             animateCounter('result-savings', Math.floor(estimatedSavingsRaw), 1500, ' €');
-            document.getElementById('result-kwp').textContent = `${estimatedKwp} kWp`;
-            document.getElementById('result-production').textContent = `${estimatedProduction} kWh`;
-            document.getElementById('result-co2').textContent = `${co2Avoided} kg`;
-
-             const ctx = document.getElementById('resultsChart').getContext('2d');
-             const monthlyProductionFactors = [0.4, 0.5, 0.8, 1.0, 1.2, 1.3, 1.35, 1.25, 1.0, 0.7, 0.5, 0.35];
-             const estimatedMonthlyProduction = monthlyProductionFactors.map(factor =>
-                 Math.floor(factor * (estimatedProduction / 12))
-             );
-             const chartData = {
-                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-                datasets: [{
-                    label: 'Producción Solar Estimada (kWh/mes)',
-                    data: estimatedMonthlyProduction,
-                    borderColor: '#ffc107',
-                    backgroundColor: 'rgba(255, 193, 7, 0.3)',
-                    fill: true,
-                    tension: 0.3,
-                    pointBackgroundColor: '#ffc107',
-                    pointRadius: 4
-                }]
-            };
-
-             if (resultsChartInstance) {
-                 resultsChartInstance.destroy();
+        // Evento click en el mapa para añadir marcador (evitando clics en marcadores existentes)
+        map.on('click', function(e) {
+             // Comprobación más robusta para evitar añadir marcador si se hizo clic en un control o un marcador existente
+             let target = e.originalEvent.target;
+             let clickedOnInteractiveElement = false;
+             while (target && target !== map._container) {
+                 if (target.classList.contains('leaflet-marker-icon') ||
+                     target.classList.contains('leaflet-control') ||
+                     target.closest('.leaflet-popup-content-wrapper')) // Evitar si se clica dentro de un popup
+                 {
+                     clickedOnInteractiveElement = true;
+                     break;
+                 }
+                 target = target.parentNode;
              }
 
-            resultsChartInstance = new Chart(ctx, {
-                type: 'line',
-                data: chartData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Estimación de Producción vs Consumo Mensual',
-                            font: { size: 16 }
-                        },
-                        legend: { position: 'top' },
-                         tooltip: { enabled: true, mode: 'index', intersect: false }
-                    },
-                     scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Energía (kWh)' } },
-                        x: { title: { display: true, text: 'Mes' } }
-                    },
-                    animation: { duration: 800, easing: 'easeInOutQuart' }
-                }
-            });
-
-             const resultsMapContainer = document.getElementById('results-map-container');
-             resultsMapContainer.innerHTML = `Visualización Tejado (${area.toFixed(1)}m²) - Pendiente`;
-        }
+            if (!clickedOnInteractiveElement) {
+                addMarkerWithCirclesAndLabels(e.latlng);
+            }
+        });
+        // --- Fin Lógica Marcadores ---
 
     </script>
 </body>
