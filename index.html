@@ -21,7 +21,6 @@
         :root {
             --primary-color: #3388FF; /* Azul Leaflet */
             --secondary-color: #FF5733; /* Naranja Energía */
-            /* ... otras variables ... */
             --text-color: #333;
             --bg-color: #f8f9fa;
             --white: #ffffff;
@@ -57,54 +56,20 @@
         .suggestion-message { padding: 15px 20px; color: #888; font-style: italic; display: flex; align-items: center; justify-content: center; }
         .suggestion-message .spinner-small { width: 18px; height: 18px; border-width: 2px; border: 2px solid var(--shadow-light); border-top-color: var(--secondary-color); border-radius: 50%; margin-right: 8px; animation: spin 0.8s linear infinite; }
 
-        /* --- Controles Leaflet (Zoom) --- */
+        /* Controles Leaflet (Zoom) (sin cambios) */
          .leaflet-control-zoom { border: none !important; border-radius: 8px !important; box-shadow: 0 2px 8px var(--shadow-medium) !important; }
          .leaflet-control-zoom a { color: var(--blue-light) !important; font-weight: bold !important; }
 
-        /* --- *** ESTILOS NUEVOS/MODIFICADOS PARA CONTROL DE CAPAS *** --- */
-        .leaflet-control-layers {
-             border: none !important;
-             border-radius: 8px !important;
-             box-shadow: 0 2px 8px var(--shadow-medium) !important;
-             padding: 5px; /* Añadir un pequeño padding */
-         }
-        /* Estilo para cada opción de capa base */
-        .leaflet-control-layers-base label {
-             display: block; /* Que cada opción ocupe su línea */
-             margin-bottom: 5px;
-             cursor: pointer;
-         }
-        /* Contenedor del radio button + imagen/texto (si hubiera) */
-        .leaflet-control-layers-base label span {
-             display: inline-block; /* O flex si se quiere alinear algo más */
-             vertical-align: middle;
-         }
-        /* Estilo específico para la imagen miniatura */
-        img.layer-thumbnail {
-             width: 50px;  /* Tamaño de la miniatura */
-             height: 50px; /* Tamaño de la miniatura */
-             border: 2px solid transparent; /* Borde inicial transparente */
-             border-radius: 4px;
-             object-fit: cover; /* Asegura que la imagen cubra el espacio */
-             vertical-align: middle;
-             margin-left: 5px; /* Espacio respecto al radio button */
-             transition: border-color 0.2s ease;
-         }
-        /* Resaltar borde de la miniatura seleccionada */
-        .leaflet-control-layers-selector:checked + span img.layer-thumbnail {
-             border-color: var(--blue-light); /* Borde azul al seleccionar */
-        }
-        /* Opcional: Hacer un poco más grande al pasar el ratón */
-         label:hover img.layer-thumbnail {
-             transform: scale(1.05);
-             border-color: #aaa;
-         }
-        .leaflet-control-layers-selector:checked + span img.layer-thumbnail {
-             border-color: var(--blue-light);
-             transform: scale(1); /* Evitar escalado si está seleccionado */
-         }
-        /* --- *** FIN ESTILOS CONTROL DE CAPAS *** --- */
-
+        /* --- Estilos Control de Capas con Miniaturas --- */
+        .leaflet-control-layers { border: none !important; border-radius: 8px !important; box-shadow: 0 2px 8px var(--shadow-medium) !important; padding: 6px; }
+        .leaflet-control-layers-base label { display: flex; /* Alinea radio button y span */ align-items: center; margin-bottom: 6px; cursor: pointer; }
+        .leaflet-control-layers-base label span { /* Contenedor de imagen y texto (opcional) */ display: flex; align-items: center; margin-left: 5px; }
+        img.layer-thumbnail { width: 45px; height: 45px; border: 2px solid #ddd; border-radius: 4px; object-fit: cover; transition: border-color 0.2s ease, transform 0.1s ease; }
+        .leaflet-control-layers-selector:checked + span img.layer-thumbnail { border-color: var(--blue-light); }
+        label:hover img.layer-thumbnail { transform: scale(1.03); border-color: #aaa; }
+        .leaflet-control-layers-selector:checked + span img.layer-thumbnail { transform: scale(1); /* Sin escalar si está seleccionado */ }
+        .layer-label-text { /* Estilo para el texto junto a la miniatura */ font-size: 13px; margin-left: 8px; color: var(--text-color); }
+        /* --- Fin Estilos Control de Capas --- */
 
         /* Estilos Popups (sin cambios) ... */
          .leaflet-popup-content-wrapper { background-color: var(--white); border-radius: 12px; box-shadow: 0 3px 15px var(--shadow-medium); }
@@ -116,17 +81,30 @@
          .popup-delete-button:hover { background: linear-gradient(45deg, #ee5253, #ff6b6b); box-shadow: 0 4px 8px rgba(255, 107, 107, 0.6); transform: translateY(-1px); }
          .popup-delete-button i { margin-right: 5px; }
 
-        /* Círculos de Radio (sin animación) */
+        /* Círculos de Radio (sin cambios) */
         .autoconsumo-circle {}
 
-        /* Etiquetas de Radio */
-        .radius-label { background: rgba(255, 255, 255, 0.7); border: none; color: var(--secondary-color); font-weight: 600; font-size: 11px; padding: 2px 5px; border-radius: 4px; box-shadow: 0 1px 3px var(--shadow-light); white-space: nowrap; text-align: center; pointer-events: none; }
-        /* --- AJUSTE DE POSICIÓN ETIQUETAS --- */
-        .label-north { transform: translate(-50%, -150%); } /* Igual, más arriba */
-        .label-south { transform: translate(-50%, -80%); }  /* *** MODIFICADO: Mover hacia ARRIBA (dentro) *** */
-        .label-east { transform: translate(-110%, -50%); } /* *** MODIFICADO: Mover hacia la IZQUIERDA (dentro) *** */
-        .label-west { transform: translate(10%, -50%); }   /* *** MODIFICADO: Mover hacia la DERECHA (dentro) *** */
-        /* --- FIN AJUSTE POSICIÓN --- */
+        /* --- Etiquetas de Radio (Posición Ajustada) --- */
+        .radius-label {
+             background: rgba(255, 255, 255, 0.8); /* Ligeramente más opaco */
+             border: none;
+             color: var(--secondary-color);
+             font-weight: 600;
+             font-size: 11px;
+             padding: 3px 6px; /* Un poco más de padding */
+             border-radius: 4px;
+             box-shadow: 0 1px 3px var(--shadow-light);
+             white-space: nowrap;
+             text-align: center;
+             pointer-events: none;
+         }
+        /* Ajuste Posiciones: los % son relativos al tamaño del propio label */
+        /* El punto de anclaje calculado está en el borde del círculo */
+        .label-north { transform: translate(-50%, -160%); } /* Un poco más arriba aún */
+        .label-south { transform: translate(-50%, -220%); } /* Mover MUCHO hacia ARRIBA (hacia el norte) desde el borde inferior */
+        .label-east  { transform: translate(-250%, -50%); } /* Mover MUCHO hacia la IZQUIERDA desde el borde derecho */
+        .label-west  { transform: translate(150%, -50%); }  /* Mover MUCHO hacia la DERECHA desde el borde izquierdo */
+        /* --- Fin Ajuste Posición Etiquetas --- */
 
 
         /* Icono marcador (sin cambios) */
@@ -149,57 +127,43 @@
         const map = L.map('map', { zoomControl: false, attributionControl: false }).setView(initialCoords, initialZoom);
         L.control.attribution({ position: 'bottomright', prefix: '<a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>' }).addTo(map);
 
-        // --- Definir Capas y Controles (Con OpenTopoMap y Miniaturas) ---
+        // --- Definir Capas y Controles (Miniaturas Mejoradas) ---
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        // Capa 1: OpenStreetMap (Calles)
-        const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OSM</a>'
-        });
-        // Capa 2: Esri World Imagery (Satélite)
-        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            maxZoom: 19,
-            attribution: 'Tiles &copy; Esri'
-        });
-        // *** Capa 3: OpenTopoMap (Topográfico) ***
-        const topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-             maxZoom: 17, // OpenTopoMap tiene un zoom máximo menor
-             attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
-         });
+        // Capas Base
+        const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OSM</a>' });
+        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Tiles &copy; Esri' });
+        const topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17, attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)' });
 
-        // Listeners de error (añadir para topoLayer)
+        // Listeners de error
         streetLayer.on('tileerror', function(error, tile) { console.warn('Error tesela Calles:', error.error); });
         satelliteLayer.on('tileerror', function(error, tile) { console.warn('Error tesela Satélite:', error.error); });
         topoLayer.on('tileerror', function(error, tile) { console.warn('Error tesela Topo:', error.error); });
 
-        // Añadir capa inicial al mapa
-        streetLayer.addTo(map);
+        streetLayer.addTo(map); // Capa inicial
 
-        // --- *** Miniaturas Base64 (Ejemplos - Reemplazar con imágenes reales si es posible) *** ---
-        // Estas son representaciones muy básicas. Idealmente, usa capturas reales convertidas a base64 (aprox 40x40 o 50x50)
-        const thumbOsm = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACVSURBVGhbtY0xEoAgDAN7/0v7oasGae1GBgTvq9hJaCAD4IA7YgAKQAEogAQwgHviABSAAuiAO+IAGIACOOAOGUCCAwRQIKGFAQKU0AAhU4CEBgRQIKENAUI0IAAQoYEBEhIECNCgAESUAQKEBghIQAECCggQkAACEhQIkAABQkgBAkgIAULICAFCyAgBQsjEP9n3/wBMW0E+z2/+AEHVBgBIQBP5AAAAAElFTkSuQmCC'; // Placeholder simple
-        const thumbSatellite = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACeSURBVGhbtZJBDcAgDAO9/6XdNKapAYaD8Ed7oTknjYMAAwQMkBBCQAghAeaIIUAIIdAEc8QQQAgh0ARzxBAgQAghQAgh0AQQQAghQAghEEAIIUAIIYAIIUAIIUAIIUBzhgAhpEEaMkOAEFKghxwhQAgJUEsOECBEBKjlAAECRCClAAECRCClAAECRGCkAAECRGCEAAECxFghQAARrDAgQASLDkNVHXn9/wE84xcARvMJZyoLWPUAAAAASUVORK5CYII='; // Placeholder simple
-        const thumbTopo = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACaSURBVGhbtZJBCsAgDAN9/0v7hkpTtRexgcAnNYwYBxkIAUJICCEghIDMEUOAEBKggDlgCCFACSqAOUIICRCChBAiQgUJIECEBhUggIQGFCCAhAYUIIGEBghIgIAMCSBhAQKEkAAhJEBIgBASCBCRgARKSIAEEpEgAQSkSAABKUqAAAlKlAABQkrLH5v5/wNzeQsAe5kXkU0AAAAASUVORK5CYII='; // Placeholder simple
+        // --- Miniaturas Base64 (Más Representativas - Aprox 50x50) ---
+        // (Estas son generadas, podrían mejorarse con capturas reales)
+        const thumbOsm = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJFSURBVGhD7ZfRihRRGMd/dxMSk5VIJGpCjEiMRA0kGrDQoI0WIm40FxqNtQsRDTYKJRqImw0Gg0YjJoqIiYkGFWMmEhGFkQhGRHw77977d2fG4u7uTO57b/+583/nzP/cGaYoaHj98fHxsXVdB27Zti3h+36P+Xxu6z4GfN/HNE2sLCw8A6h0kGXZnN/vNxaLxQjZgAJYliV5nWdZppqJRLjVajXqfPj7+7Pb7TZJk6RJkqRSyVJKpVKuVCqlGWOcpuP7Ph9cLpdzsVgMb4IoiiCEIAh4KYTw+PgYoiiCEAIZhuHh4eERtm1Pp3GaDk3T+LIs8/j4mMPhcHg8HqMsy3w+nwkhiyAI4PP5EgRBWJblSqVSCoPAgwcPIJRSvu/zAwMDnPb19TFNk+M4ThAEYTSbw+l0GsfjcbZtW5bl/QAuAJdSqmmatm3bSqVSLMtSVVVpmhbLssbzvFarNSqVSk3TeLvdjhaLxZDL5TiKomPbthBCxhhisRisVCrFer3OdV1XlmU6nc7wervdjivK0rZtj7Isv6iqqvT7/QCfz0fXddM0TTw9PWVZlrAsy9LptF+e5/lf1/XvAOrJsiw7PDxkvV6PYRgIAYQQjEYjlmVRFAWBQBCEIAjCNE08PT3l3t5eCCE8Hg9pmgzDkM/nSZLENE2SZAmCALquoyjL2Jbb7XZcNptNvu/TdZ3L5XL5fD7DMIyqqlJKruvSdV1cLpc+n8+I4/jw8JDneUQURVEUubGxQVVVgiCcSqVSLBaDwWAwg8FgMMMw9Pt9mqbJsuwPAOrVajXWZTkOhwOfzweAfwEjy4Vjzt+kIQAAAABJRU5ErkJggg==';
+        const thumbSatellite = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHzSURBVGhD7ZfRihRRFMd/ewd2NhZrYbETYqFICoGUzUIsjEg0WGiw0UYkbjRYaSMWNhpNtCFiIyEWbRQaDRYjBkFEJEYiISIiIsLu3bv/7MzL3dmdyf3tbf7P59zzO/feewayLCsrq0PDwsLaarUGnDAMY4nH4wlzXQcuCoKAxWIxyLIsz3q9Pjo9PWXZth3HMeAGUlhVVdF13Vwul3O73X78/PwCkAaYpinXddM0TaSUqqqqqra2tgyzLMMwyLIs3/f9fr//qNfrJEmSJEkyDINer9d6PB5CoFarNSqVCgQCAQAhpHuSAEDTNAmCgG3bbts2SZIkSYIgCO/3+5PNZuPz+bzdbcMwRBH7/f5kGIa0XCqVCo1GAwMDA9zY2KDb7XY8Hk9FUcRxHGGapsvlsizLgsvlcqfTKX+a3W4HoiiCEEKEEKSUqqrq8vKyz+dztm0bDoeJRqOBdrsdjuNwuVwulUpFVVWVZVm2bRuNRkPTNHEcBzj/fr9fKpXKbre7XC6nruv4vo/jOLFYDCEESOvs7AxpmmZmZoaqqoIgCBzHYTQawzCMruv4vg/DMDgcDjgcDhAIGIZBEARcLpeUUqZpkiRJkiRBELBERVEsy9J1XSKRyGaz+Xw+H41GMxwOw7ZsW5blrwuHw2m1WuPz+bwA+gGqRkdHnU6nk0qlQklJkqSkpCQkhBBCCCllWdbPzzAMq6rq9Xr9VqsVxhgIIYQQxhjDMAhhRVEcy7KklJIkSTAYDFJKURS93+/btm0hhKenpxRFyWQyOSKR6O/v7x/A36+qqngxQpYfAAAAAElFTkSuQmCC';
+        const thumbTopo = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAQxSURBVGhD7VlNixxFFD7zFQQRA3FjEIwaDIgHCiqCm+APcCP6Df4B3XQjIq5cOPgDuHEjGkWUaCFYiGjiJhKNGAwGgxERxYAYX/f1/rR+dc/0dM/Mzq534V71VXVV1fXr16tX37IoaBh+dXd3k6xJ8jwOhwNjDJIk4TgODMNwdnaWruvUdV0cx1EUhWEYUkoZY5qmsiwzDINlWXK5XE6n04yxbdsQQtM0KYoyDINSSgghSRL7+/vJZDL4fD6xWCxSqRQhhCRJcN/e3sbj8VCWZQqFAgRBmM1mvu/7vn8YhqRSKYIgiqJYLBZMJhNTU1PsdjuVSiUSiaCqKuM4lmVJFMXd3V0ejwcsy9I0jbquSRKxWCx836dSqYiieDwe+Xw+lUoliiKKoqIoCoIglUrl9vaWLMsURcHr9WKxWKjVarIsY5omSRJCCHEcX1dXl8vl0mw2o7ZtSRLxeDx4PB6pVCoajX4+z/t83/f5vo/jOJZl6ff7uK7LdV0IIZVKhbIsXdfd3t4mk8nAdV2WZTAMA8MwGIYhlUrlcDj0+/201mq1YrFYLMviOGaM/X4/ruvTdU0pJaUURRFCUkoY46qqvu/fvn5+ftpsNpVKJZqm4fN5sVhMp9ORZVmz2XwYhiRJwvf9qdVqLMuyLEulUrFarYTDYWzbZrPZvN1ueTweHMexLGObNm1bHMfhcrlUKpVyuVxKKYRQX1+fsiyz2+3o9/uxWEwIIaZpEkURx3FCURTdbjd+v5+fn5/NZjMMwyCEqVTKYDCg2+0mk8kQQrquYzAYMJlMyLKM4ziRSMTzPCklruvSNC2KIk3TiKIoiiJBEGKxGCklkiT0+/3JZDLGGJIkOI7DarXi8XgYhoHf78cY832fNE1pmhZFEYIgHMfRdV2WZQmCgGEYSqUSRVEEQZDP5xmGwTAMVVVSStM0KYrivr4+JEmqquq6LgRBxHH8uiil7Pf7NE2TlFJCiOM4iqIsyxNCxhiz2YxpmjiO43A4MBqNkGUZxjAMw5DVanV4eEgpJeM4kiSpqqqmaeI4zm63SyQSxHHCdV2SJMPDw4RhiGEYSqUSQRDA6/ViWRaKosRyOUophBBKqbqu+76v1+uhKAphGPL5fDiOE0VRl8slSRJRFHFdF8dxHMfZbDZ4PB7b7TaikIjH47fb7W4ul2PbtsfjEQSBruuo6zrLshzH0XSdpmlcLhcYhgkGgxAEQVEUkiTpdrsQQnQ6HWzbZnM5vu+TyWRQVRVCiOM4kiRxXbfdbofD4TAajchyuVyulPL5fCQSiVQqlcFgkCRJpVIplUpFUVRV1QQhpJRerxeLxSJJEgiCcDgcMJvN+P1+nudxnCdlWSzLMsMwHMdRFMXj8TgcDsPDwzRNQxAEuq6zLDt/+s1mMyllv99/aZpe7Pf7LMsyDINpmiRJwuPxEAQBqqpSShiG4ff7/QCAYZgaDAYJIcIwTCqVirquSZKo67pYLHa5XD4AwDAMRVGs1WpRFMX+/n5KqcVikW3btizLsixCCHEc/wCIRWkP7Q1hTgAAAABJRU5ErkJggg==';
+        // --- Fin Miniaturas ---
 
-        // Definir mapas base usando las miniaturas en el 'label'
+        // Definir mapas base usando las miniaturas mejoradas
         const baseMaps = {
-            // La clave es el HTML que se mostrará en el control
-            [`<img src="${thumbOsm}" class="layer-thumbnail" alt="Calles"> Calles`]: streetLayer,
-            [`<img src="${thumbSatellite}" class="layer-thumbnail" alt="Satélite"> Satélite`]: satelliteLayer,
-            [`<img src="${thumbTopo}" class="layer-thumbnail" alt="Topográfico"> Topo`]: topoLayer
+            // Usar span para agrupar imagen y texto (opcional)
+            [`<span><img src="${thumbOsm}" class="layer-thumbnail" alt="Calles"> <span class="layer-label-text">Calles</span></span>`]: streetLayer,
+            [`<span><img src="${thumbSatellite}" class="layer-thumbnail" alt="Satélite"> <span class="layer-label-text">Satélite</span></span>`]: satelliteLayer,
+            [`<span><img src="${thumbTopo}" class="layer-thumbnail" alt="Topográfico"> <span class="layer-label-text">Topo</span></span>`]: topoLayer
         };
 
-        // Añadir control de capas al mapa
-        L.control.layers(baseMaps, null, {
-            position: 'bottomleft',
-            collapsed: true // Puedes ponerlo false para que esté abierto por defecto
-        }).addTo(map);
+        L.control.layers(baseMaps, null, { position: 'bottomleft', collapsed: false }).addTo(map); // Poner collapsed: false para ver el cambio
 
         // --- Indicador de Carga (sin cambios) ---
         map.whenReady(() => { /* ... código igual ... */ console.log("Mapa listo (whenReady)."); streetLayer.once('load', () => { console.log("Capa base cargada (load). Ocultando overlay."); loadingOverlay.classList.add('hidden'); mapElement.classList.remove('loading'); }); setTimeout(() => { if (!loadingOverlay.classList.contains('hidden')) { console.warn("Fallback timeout: Ocultando overlay después de 3.5 segundos."); loadingOverlay.classList.add('hidden'); mapElement.classList.remove('loading'); } }, 3500); });
 
-        // --- Lógica Barra de Búsqueda (fetch) (sin cambios respecto a la última versión) ---
+        // --- Lógica Barra de Búsqueda (fetch) (sin cambios) ---
+        /* ... El código de búsqueda con fetch se mantiene igual ... */
         const searchInput = document.getElementById('search-input'); const suggestionsContainer = document.getElementById('suggestions-container'); const searchContainer = document.getElementById('search-container'); let debounceTimer;
         function displaySuggestions(results) { /* ... código igual ... */ console.log(">>> displaySuggestions EJECUTADA. Resultados recibidos:", results); suggestionsContainer.innerHTML = ''; if (results === null || results === undefined) { console.log("   Resultados son null/undefined, mostrando error."); suggestionsContainer.innerHTML = '<div class="suggestion-message">😕 Error al buscar. Intenta de nuevo.</div>'; suggestionsContainer.style.display = 'block'; return; } if (typeof results.error === 'string') { console.log("   La API devolvió un error:", results.error); showSearchError({ message: results.error }); return; } if (!Array.isArray(results) || results.length === 0) { console.log("   Resultados vacíos, no es array o no válidos."); suggestionsContainer.style.display = 'none'; return; } console.log(`   Procesando ${results.length} resultados.`); results.forEach(place => { const item = document.createElement('div'); item.classList.add('suggestion-item'); let mainName = place.address?.amenity || place.address?.shop || place.address?.tourism || place.address?.building || place.name || place.display_name.split(',')[0]; let details = [ place.address?.road || place.address?.pedestrian, place.address?.house_number, place.address?.suburb, place.address?.city || place.address?.town || place.address?.village, place.address?.state, place.address?.country ].filter(Boolean).join(', '); if (details.toLowerCase().includes(mainName.toLowerCase()) && details.length > mainName.length + 5) { mainName = place.display_name.split(',')[0]; } item.innerHTML = `<strong>${mainName}</strong><small>${details || place.display_name}</small>`; item.dataset.lat = place.lat; item.dataset.lon = place.lon; item.dataset.displayName = mainName; if (place.boundingbox && place.boundingbox.length === 4) { item.dataset.bbox = place.boundingbox.join(','); } else { item.dataset.bbox = ''; } item.addEventListener('click', () => { const lat = parseFloat(item.dataset.lat); const lon = parseFloat(item.dataset.lon); const bboxStr = item.dataset.bbox; let bbox = null; if (bboxStr) { bbox = bboxStr.split(',').map(Number); } if (bbox && bbox.length === 4 && (bbox[1] - bbox[0]) > 0.0001 && (bbox[3] - bbox[2]) > 0.0001) { map.flyToBounds([[bbox[0], bbox[2]], [bbox[1], bbox[3]]], { padding: [50, 50], maxZoom: 17, duration: 1 }); } else if (!isNaN(lat) && !isNaN(lon)) { map.flyTo([lat, lon], 16, { duration: 1 }); } searchInput.value = item.dataset.displayName; suggestionsContainer.innerHTML = ''; suggestionsContainer.style.display = 'none'; }); suggestionsContainer.appendChild(item); }); suggestionsContainer.style.display = 'block'; }
         function showSearchError(errorDetails) { /* ... código igual ... */ const message = errorDetails?.message || "Error desconocido."; console.error(">>> showSearchError EJECUTADA. Detalles:", errorDetails); suggestionsContainer.innerHTML = `<div class="suggestion-message">❌ Error al buscar: ${message}</div>`; suggestionsContainer.style.display = 'block'; }
@@ -207,23 +171,16 @@
         searchInput.addEventListener('input', () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(triggerSearch, 450); });
         document.addEventListener('click', (event) => { if (searchContainer && !searchContainer.contains(event.target)) { suggestionsContainer.style.display = 'none'; } });
 
-        // --- Lógica Marcadores/Círculos (Con colores actualizados y etiquetas ajustadas por CSS) ---
-        const markersData = {};
-        function calculateDestinationPoint(lat, lon, distance, bearing) { /* Sin cambios */ const R = 6371e3; const lat1Rad = lat * Math.PI / 180; const lon1Rad = lon * Math.PI / 180; const bearingRad = bearing * Math.PI / 180; const dRad = distance / R; const lat2Rad = Math.asin(Math.sin(lat1Rad) * Math.cos(dRad) + Math.cos(lat1Rad) * Math.sin(dRad) * Math.cos(bearingRad)); const lon2Rad = lon1Rad + Math.atan2(Math.sin(bearingRad) * Math.sin(dRad) * Math.cos(lat1Rad), Math.cos(dRad) - Math.sin(lat1Rad) * Math.sin(lat2Rad)); return L.latLng(lat2Rad * 180 / Math.PI, lon2Rad * 180 / Math.PI); }
-        function createLabel(latlng, text, positionClass) { /* Sin cambios */ const labelIcon = L.divIcon({ className: `radius-label ${positionClass}`, html: text, iconSize: null, iconAnchor: [0, 0] }); return L.marker(latlng, { icon: labelIcon, interactive: false, pane: 'shadowPane' }).addTo(map); }
 
-        function addMarkerWithCirclesAndLabels(latlng) { /* Sin cambios aquí, los colores se ajustaron antes */
-             const solarIcon = L.divIcon({ html: '<i class="fas fa-solar-panel fa-2x" style="color: var(--blue-light);"></i>', className: 'solar-marker-icon', iconSize: [30, 30], iconAnchor: [15, 30] });
-             const marker = L.marker(latlng, { icon: solarIcon, draggable: false }).addTo(map);
-             const markerId = L.Util.stamp(marker);
-             const radii = [ { radius: 500, label: "500m", color: '#3388FF', opacity: 0.60 }, { radius: 2000, label: "2km", color: '#FF5733', opacity: 0.40 } ];
-             const bearings = [ { bearing: 0, posClass: 'label-north' }, { bearing: 180, posClass: 'label-south' }, { bearing: 90, posClass: 'label-east' }, { bearing: 270, posClass: 'label-west' } ];
-             const createdCircles = [], createdLabels = [];
-             try { /* ... resto de la lógica try/catch sin cambios ... */ radii.forEach(rInfo => { const circle = L.circle(latlng, { radius: rInfo.radius, color: rInfo.color, fillColor: rInfo.color, fillOpacity: rInfo.opacity, weight: 1.5, className: 'autoconsumo-circle' }).addTo(map); createdCircles.push(circle); bearings.forEach(bInfo => { const labelLatLng = calculateDestinationPoint(latlng.lat, latlng.lng, rInfo.radius, bInfo.bearing); createdLabels.push(createLabel(labelLatLng, rInfo.label, bInfo.posClass)); }); }); markersData[markerId] = { marker: marker, circles: createdCircles, labels: createdLabels }; const popupContent = ` <div class="popup-title">📍 Punto Seleccionado</div> <div class="popup-coords"> <span>Lat:</span> ${latlng.lat.toFixed(5)}<br> <span>Lng:</span> ${latlng.lng.toFixed(5)} </div> <div style="font-size: 12px; color: #777; margin-bottom: 15px;">Radios de autoconsumo: 500m y 2km</div> <button class="popup-delete-button" onclick="removeMarkerAndElements(${markerId})"> <i class="fas fa-trash-alt"></i> Eliminar Punto </button> `; marker.bindPopup(popupContent).openPopup(); marker.on('click', () => marker.openPopup()); } catch (e) { console.error("Error al crear círculos/etiquetas:", e); if (marker) map.removeLayer(marker); createdCircles.forEach(c => map.removeLayer(c)); createdLabels.forEach(l => map.removeLayer(l)); delete markersData[markerId]; alert("Hubo un problema al añadir el punto."); }
-        }
-        window.removeMarkerAndElements = function(markerId) { /* Sin cambios */ const data = markersData[markerId]; if (data) { data.labels.forEach(label => map.removeLayer(label)); data.circles.forEach(circle => map.removeLayer(circle)); map.removeLayer(data.marker); delete markersData[markerId]; } else { console.warn("Intento de eliminar marcador no encontrado con ID:", markerId); } }
-        map.on('click', function(e) { /* Sin cambios */ let target = e.originalEvent.target; let clickedOnInteractiveElement = false; while (target && target !== map._container) { if (target.classList.contains('leaflet-marker-icon') || target.classList.contains('leaflet-control') || target.closest('.leaflet-popup-content-wrapper')) { clickedOnInteractiveElement = true; break; } target = target.parentNode; } if (!clickedOnInteractiveElement) { addMarkerWithCirclesAndLabels(e.latlng); } });
-        // --- Fin Lógica Marcadores ---
+        // --- Lógica Marcadores/Círculos (Etiquetas ajustadas por CSS) ---
+        /* ... Las funciones calculateDestinationPoint, createLabel, addMarkerWithCirclesAndLabels, removeMarkerAndElements, map.on('click') se mantienen igual que en la versión anterior ... */
+        const markersData = {};
+        function calculateDestinationPoint(lat, lon, distance, bearing) { const R = 6371e3; const lat1Rad = lat * Math.PI / 180; const lon1Rad = lon * Math.PI / 180; const bearingRad = bearing * Math.PI / 180; const dRad = distance / R; const lat2Rad = Math.asin(Math.sin(lat1Rad) * Math.cos(dRad) + Math.cos(lat1Rad) * Math.sin(dRad) * Math.cos(bearingRad)); const lon2Rad = lon1Rad + Math.atan2(Math.sin(bearingRad) * Math.sin(dRad) * Math.cos(lat1Rad), Math.cos(dRad) - Math.sin(lat1Rad) * Math.sin(lat2Rad)); return L.latLng(lat2Rad * 180 / Math.PI, lon2Rad * 180 / Math.PI); }
+        function createLabel(latlng, text, positionClass) { const labelIcon = L.divIcon({ className: `radius-label ${positionClass}`, html: text, iconSize: null, iconAnchor: [0, 0] }); return L.marker(latlng, { icon: labelIcon, interactive: false, pane: 'shadowPane' }).addTo(map); }
+        function addMarkerWithCirclesAndLabels(latlng) { const solarIcon = L.divIcon({ html: '<i class="fas fa-solar-panel fa-2x" style="color: var(--blue-light);"></i>', className: 'solar-marker-icon', iconSize: [30, 30], iconAnchor: [15, 30] }); const marker = L.marker(latlng, { icon: solarIcon, draggable: false }).addTo(map); const markerId = L.Util.stamp(marker); const radii = [ { radius: 500, label: "500m", color: '#3388FF', opacity: 0.60 }, { radius: 2000, label: "2km", color: '#FF5733', opacity: 0.40 } ]; const bearings = [ { bearing: 0, posClass: 'label-north' }, { bearing: 180, posClass: 'label-south' }, { bearing: 90, posClass: 'label-east' }, { bearing: 270, posClass: 'label-west' } ]; const createdCircles = [], createdLabels = []; try { radii.forEach(rInfo => { const circle = L.circle(latlng, { radius: rInfo.radius, color: rInfo.color, fillColor: rInfo.color, fillOpacity: rInfo.opacity, weight: 1.5, className: 'autoconsumo-circle' }).addTo(map); createdCircles.push(circle); bearings.forEach(bInfo => { const labelLatLng = calculateDestinationPoint(latlng.lat, latlng.lng, rInfo.radius, bInfo.bearing); createdLabels.push(createLabel(labelLatLng, rInfo.label, bInfo.posClass)); }); }); markersData[markerId] = { marker: marker, circles: createdCircles, labels: createdLabels }; const popupContent = ` <div class="popup-title">📍 Punto Seleccionado</div> <div class="popup-coords"> <span>Lat:</span> ${latlng.lat.toFixed(5)}<br> <span>Lng:</span> ${latlng.lng.toFixed(5)} </div> <div style="font-size: 12px; color: #777; margin-bottom: 15px;">Radios de autoconsumo: 500m y 2km</div> <button class="popup-delete-button" onclick="removeMarkerAndElements(${markerId})"> <i class="fas fa-trash-alt"></i> Eliminar Punto </button> `; marker.bindPopup(popupContent).openPopup(); marker.on('click', () => marker.openPopup()); } catch (e) { console.error("Error al crear círculos/etiquetas:", e); if (marker) map.removeLayer(marker); createdCircles.forEach(c => map.removeLayer(c)); createdLabels.forEach(l => map.removeLayer(l)); delete markersData[markerId]; alert("Hubo un problema al añadir el punto."); } }
+        window.removeMarkerAndElements = function(markerId) { const data = markersData[markerId]; if (data) { data.labels.forEach(label => map.removeLayer(label)); data.circles.forEach(circle => map.removeLayer(circle)); map.removeLayer(data.marker); delete markersData[markerId]; } else { console.warn("Intento de eliminar marcador no encontrado con ID:", markerId); } }
+        map.on('click', function(e) { let target = e.originalEvent.target; let clickedOnInteractiveElement = false; while (target && target !== map._container) { if (target.classList.contains('leaflet-marker-icon') || target.classList.contains('leaflet-control') || target.closest('.leaflet-popup-content-wrapper')) { clickedOnInteractiveElement = true; break; } target = target.parentNode; } if (!clickedOnInteractiveElement) { addMarkerWithCirclesAndLabels(e.latlng); } });
+
 
     </script>
 </body>
