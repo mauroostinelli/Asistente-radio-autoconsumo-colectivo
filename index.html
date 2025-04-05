@@ -4,7 +4,7 @@
     <base target="_top">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>☀️ Explorador Solar Interactivo</title>
+    <title>☀️ Explorador Solar Interactivo (Vercel)</title>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
@@ -19,7 +19,7 @@
     <style>
         /* --- Variables CSS para Tema Solar --- */
         :root {
-            --primary-color: #FFC300; /* Amarillo Solar */
+            --primary-color: #3388FF; /* Azul Leaflet (reemplaza amarillo) */
             --secondary-color: #FF5733; /* Naranja Energía */
             --accent-color: #4CAF50; /* Verde Eco (opcional) */
             --text-color: #333;
@@ -27,293 +27,63 @@
             --white: #ffffff;
             --shadow-light: rgba(0, 0, 0, 0.1);
             --shadow-medium: rgba(0, 0, 0, 0.2);
+            --blue-light: #3388FF; /* Definir azul para referencia */
+            --orange-energy: #FF5733; /* Definir naranja para referencia */
         }
 
-        /* --- Estilos Globales y Reset --- */
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            font-family: 'Poppins', sans-serif; /* Aplicar nueva fuente */
-            background-color: var(--bg-color);
-            overflow: hidden; /* Evitar scrollbars innecesarios */
-        }
+        /* Estilos Globales, Mapa, Indicador Carga (sin cambios) ... */
+        html, body { height: 100%; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background-color: var(--bg-color); overflow: hidden; }
         * { box-sizing: border-box; }
+        #map { height: 100vh; width: 100%; position: relative; z-index: 1; filter: brightness(1); transition: filter 0.5s ease; }
+        #map.loading { filter: brightness(0.9) blur(1px); }
+        #loading-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255, 255, 255, 0.8); display: flex; justify-content: center; align-items: center; z-index: 2000; flex-direction: column; transition: opacity 0.5s ease-out; }
+        #loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .spinner { border: 5px solid var(--shadow-light); border-top: 5px solid var(--blue-light); /* Usar azul */ border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        #loading-overlay p { font-weight: 600; color: var(--text-color); }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- Mapa --- */
-        #map {
-            height: 100vh;
-            width: 100%;
-            position: relative;
-            z-index: 1;
-            filter: brightness(1); /* Inicial */
-            transition: filter 0.5s ease; /* Transición suave para filtros */
-        }
-        /* Efecto sutil al cargar o interactuar */
-        #map.loading {
-             filter: brightness(0.9) blur(1px);
-        }
-
-
-        /* --- Indicador de Carga General --- */
-        #loading-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(255, 255, 255, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000; /* Encima de todo */
-            flex-direction: column;
-            transition: opacity 0.5s ease-out;
-        }
-        #loading-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-        .spinner {
-            border: 5px solid var(--shadow-light);
-            border-top: 5px solid var(--primary-color);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 15px;
-        }
-        #loading-overlay p {
-            font-weight: 600;
-            color: var(--text-color);
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-
-        /* --- Barra de Búsqueda Mejorada --- */
-        #search-container {
-            position: absolute;
-            top: 20px;
-            left: 50%; /* Centrar */
-            transform: translateX(-50%); /* Ajuste fino para centrar */
-            z-index: 1050;
-            width: 90%;
-            max-width: 450px; /* Un poco más ancha */
-            background-color: var(--white);
-            border-radius: 30px; /* Más redondeada */
-            box-shadow: 0 4px 12px var(--shadow-medium);
-            display: flex;
-            align-items: center;
-            padding: 8px 15px; /* Ajustar padding */
-            transition: all 0.3s ease;
-        }
-         #search-container:focus-within { /* Efecto al enfocar el input */
-             box-shadow: 0 6px 16px rgba(255, 195, 0, 0.5);
-         }
-
-        #search-input {
-            flex-grow: 1;
-            height: 40px;
-            padding: 0 10px 0 35px; /* Espacio para icono */
-            font-size: 16px;
-            border: none;
-            outline: none;
-            border-radius: 30px;
-            background: transparent;
-            color: var(--text-color);
-            position: relative;
-        }
-         #search-input::placeholder {
-             color: #999;
-             font-weight: 300;
-         }
-
-         /* Icono de Lupa (usando pseudo-elemento) */
-         #search-container::before {
-             font-family: "Font Awesome 6 Free"; /* Necesitas Font Awesome */
-             content: "\f002"; /* Código del icono de lupa */
-             font-weight: 900;
-             position: absolute;
-             left: 20px;
-             top: 50%;
-             transform: translateY(-50%);
-             color: #aaa;
-             font-size: 16px;
-             z-index: 1; /* Asegurar que esté visible */
-         }
-
-        /* --- Contenedor de Sugerencias Mejorado --- */
-        #suggestions-container {
-            position: absolute;
-            top: calc(100% + 8px); /* Un poco más de espacio */
-            left: 0;
-            width: 100%;
-            background-color: var(--white);
-            border-radius: 15px; /* Bordes redondeados */
-            box-shadow: 0 4px 12px var(--shadow-light);
-            max-height: 350px;
-            overflow-y: auto;
-            display: none;
-            z-index: 1049;
-            border: 1px solid #eee; /* Borde sutil */
-        }
-        .suggestion-item {
-            padding: 12px 20px;
-            font-size: 15px;
-            cursor: pointer;
-            border-bottom: 1px solid #f0f0f0;
-            white-space: normal; /* Permitir wrap si es largo */
-            line-height: 1.4;
-            transition: background-color 0.2s ease;
-            color: var(--text-color);
-        }
+        /* Estilos Barra Búsqueda, Sugerencias (sin cambios funcionales) ... */
+        #search-container { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1050; width: 90%; max-width: 450px; background-color: var(--white); border-radius: 30px; box-shadow: 0 4px 12px var(--shadow-medium); display: flex; align-items: center; padding: 8px 15px; transition: all 0.3s ease; }
+        #search-container:focus-within { box-shadow: 0 6px 16px rgba(51, 136, 255, 0.5); /* Sombra azul */ }
+        #search-input { flex-grow: 1; height: 40px; padding: 0 10px 0 35px; font-size: 16px; border: none; outline: none; border-radius: 30px; background: transparent; color: var(--text-color); position: relative; }
+        #search-input::placeholder { color: #999; font-weight: 300; }
+        #search-container::before { font-family: "Font Awesome 6 Free"; content: "\f002"; font-weight: 900; position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #aaa; font-size: 16px; z-index: 1; }
+        #suggestions-container { position: absolute; top: calc(100% + 8px); left: 0; width: 100%; background-color: var(--white); border-radius: 15px; box-shadow: 0 4px 12px var(--shadow-light); max-height: 350px; overflow-y: auto; display: none; z-index: 1049; border: 1px solid #eee; }
+        .suggestion-item { padding: 12px 20px; font-size: 15px; cursor: pointer; border-bottom: 1px solid #f0f0f0; white-space: normal; line-height: 1.4; transition: background-color 0.2s ease; color: var(--text-color); }
         .suggestion-item:last-child { border-bottom: none; }
         .suggestion-item:hover { background-color: #f5f5f5; }
+        .suggestion-item strong { font-weight: 600; color: var(--blue-light); /* Nombre en azul */ display: block; margin-bottom: 3px; }
+        .suggestion-item small { display: block; color: #666; font-size: 13px; font-weight: 300; }
+        .suggestion-message { padding: 15px 20px; color: #888; font-style: italic; display: flex; align-items: center; justify-content: center; }
+        .suggestion-message .spinner-small { width: 18px; height: 18px; border-width: 2px; border: 2px solid var(--shadow-light); border-top-color: var(--secondary-color); border-radius: 50%; margin-right: 8px; animation: spin 0.8s linear infinite; }
 
-        /* Estilo para el nombre principal y detalles */
-        .suggestion-item strong {
-            font-weight: 600;
-            color: var(--primary-color); /* Destacar nombre */
-            display: block; /* Para que ocupe su línea */
-            margin-bottom: 3px;
-        }
-        .suggestion-item small {
-            display: block;
-            color: #666;
-            font-size: 13px;
-            font-weight: 300;
-        }
+        /* Estilos Controles Leaflet, Popups (sin cambios funcionales) ... */
+         .leaflet-control-zoom, .leaflet-control-layers { border: none !important; border-radius: 8px !important; box-shadow: 0 2px 8px var(--shadow-medium) !important; }
+         .leaflet-control-layers-toggle { background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23333" class="bi bi-layers-fill" viewBox="0 0 16 16"><path d="M7.765 1.559a.5.5 0 0 1 .47 0l7.5 4a.5.5 0 0 1 0 .882l-7.5 4a.5.5 0 0 1-.47 0l-7.5-4a.5.5 0 0 1 0-.882l7.5-4z"/><path d="m2.125 8.567-1.86.992a.5.5 0 0 0 0 .882l7.5 4a.5.5 0 0 0 .47 0l7.5-4a.5.5 0 0 0 0-.882l-1.86-.992-5.17 2.756a1.5 1.5 0 0 1-1.41 0l-5.17-2.756z"/></svg>') !important; background-repeat: no-repeat !important; background-position: center !important; background-size: 18px 18px !important; width: 30px !important; height: 30px !important; }
+         .leaflet-control-zoom a { color: var(--blue-light) !important; font-weight: bold !important; }
+         .leaflet-popup-content-wrapper { background-color: var(--white); border-radius: 12px; box-shadow: 0 3px 15px var(--shadow-medium); }
+         .leaflet-popup-content { margin: 15px 20px !important; font-size: 14px; line-height: 1.6; text-align: center; color: var(--text-color); }
+         .popup-title { font-weight: 600; font-size: 16px; color: var(--secondary-color); margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+         .popup-coords { font-size: 13px; color: #555; margin-bottom: 15px; }
+         .popup-coords span { font-weight: 600; color: var(--blue-light); }
+         .popup-delete-button { margin-top: 10px; padding: 8px 18px; cursor: pointer; background: linear-gradient(45deg, #ff6b6b, #ee5253); color: white; border: none; border-radius: 20px; font-weight: 600; font-size: 13px; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(255, 107, 107, 0.4); }
+         .popup-delete-button:hover { background: linear-gradient(45deg, #ee5253, #ff6b6b); box-shadow: 0 4px 8px rgba(255, 107, 107, 0.6); transform: translateY(-1px); }
+         .popup-delete-button i { margin-right: 5px; }
 
-        /* Estilo para mensajes (Buscando..., Error) */
-        .suggestion-message {
-            padding: 15px 20px;
-            color: #888;
-            font-style: italic;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-         .suggestion-message .spinner-small { /* Spinner pequeño para búsqueda */
-             width: 18px; height: 18px;
-             border-width: 2px;
-             border-top-color: var(--secondary-color); /* Otro color para variar */
-             margin-right: 8px;
-             animation: spin 0.8s linear infinite;
-             /* Hereda la animación 'spin' definida antes */
-         }
-
-
-        /* --- Controles Leaflet Personalizados --- */
-        .leaflet-control-zoom, .leaflet-control-layers {
-            border: none !important;
-            border-radius: 8px !important;
-            box-shadow: 0 2px 8px var(--shadow-medium) !important;
-        }
-        .leaflet-control-layers-toggle {
-             /* Icono personalizado básico (puedes mejorarlo con SVG) */
-             background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-layers-fill" viewBox="0 0 16 16"><path d="M7.765 1.559a.5.5 0 0 1 .47 0l7.5 4a.5.5 0 0 1 0 .882l-7.5 4a.5.5 0 0 1-.47 0l-7.5-4a.5.5 0 0 1 0-.882l7.5-4z"/><path d="m2.125 8.567-1.86.992a.5.5 0 0 0 0 .882l7.5 4a.5.5 0 0 0 .47 0l7.5-4a.5.5 0 0 0 0-.882l-1.86-.992-5.17 2.756a1.5 1.5 0 0 1-1.41 0l-5.17-2.756z"/></svg>') !important;
-             background-repeat: no-repeat !important;
-             background-position: center !important;
-             background-size: 18px 18px !important; /* Ajusta tamaño si es necesario */
-             width: 30px !important; /* Ajusta tamaño si es necesario */
-             height: 30px !important; /* Ajusta tamaño si es necesario */
-        }
-        .leaflet-control-zoom a { /* Botones +/- */
-            color: var(--primary-color) !important;
-             font-weight: bold !important;
-        }
-
-
-        /* --- Popups Temáticos --- */
-        .leaflet-popup-content-wrapper {
-            background-color: var(--white);
-            border-radius: 12px;
-            box-shadow: 0 3px 15px var(--shadow-medium);
-        }
-        .leaflet-popup-content {
-            margin: 15px 20px !important;
-            font-size: 14px;
-            line-height: 1.6;
-            text-align: center;
-            color: var(--text-color);
-        }
-        .popup-title {
-            font-weight: 600;
-            font-size: 16px;
-            color: var(--secondary-color); /* Naranja */
-            margin-bottom: 10px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 8px;
-        }
-        .popup-coords {
-            font-size: 13px;
-            color: #555;
-            margin-bottom: 15px;
-        }
-        .popup-coords span { /* Etiqueta Lat/Lng */
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
-        /* Botón Eliminar Mejorado */
-        .popup-delete-button {
-            margin-top: 10px;
-            padding: 8px 18px;
-            cursor: pointer;
-            background: linear-gradient(45deg, #ff6b6b, #ee5253); /* Gradiente rojo */
-            color: white;
-            border: none;
-            border-radius: 20px; /* Redondeado */
-            font-weight: 600;
-            font-size: 13px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(255, 107, 107, 0.4);
-        }
-        .popup-delete-button:hover {
-            background: linear-gradient(45deg, #ee5253, #ff6b6b);
-            box-shadow: 0 4px 8px rgba(255, 107, 107, 0.6);
-            transform: translateY(-1px); /* Efecto sutil hover */
-        }
-        .popup-delete-button i { /* Icono papelera */
-             margin-right: 5px;
-        }
-
-        /* --- Círculos de Radio Mejorados (Con Animación) --- */
+        /* --- Círculos de Radio (SIN animación) --- */
         .autoconsumo-circle {
-             /* stroke-dasharray: 10, 5;  Línea discontinua (opcional) */
-             animation: pulse-circle 2.5s infinite ease-out;
+             /* Ya no hay animación aquí */
         }
 
-         @keyframes pulse-circle {
-             0% { opacity: var(--initial-opacity, 0.4); transform: scale(1); }
-             50% { opacity: calc(var(--initial-opacity, 0.4) * 0.5); transform: scale(1.02); } /* Pulso sutil */
-             100% { opacity: var(--initial-opacity, 0.4); transform: scale(1); }
-         }
+        /* --- Etiquetas de Radio Mejoradas (sin cambios) --- */
+        .radius-label { background: rgba(255, 255, 255, 0.7); border: none; color: var(--secondary-color); font-weight: 600; font-size: 11px; padding: 2px 5px; border-radius: 4px; box-shadow: 0 1px 3px var(--shadow-light); white-space: nowrap; text-align: center; pointer-events: none; }
+        .label-north { transform: translate(-50%, -150%); }
+        .label-south { transform: translate(-50%, 50%); }
+        .label-east { transform: translate(30%, -50%); }
+        .label-west { transform: translate(-130%, -50%); }
 
-        /* --- Etiquetas de Radio Mejoradas --- */
-        .radius-label {
-             background: rgba(255, 255, 255, 0.7); /* Fondo semitransparente */
-             border: none;
-             color: var(--secondary-color); /* Naranja */
-             font-weight: 600; /* Más grueso */
-             font-size: 11px; /* Ligeramente más grande */
-             padding: 2px 5px; /* Pequeño padding */
-             border-radius: 4px; /* Bordes suaves */
-             box-shadow: 0 1px 3px var(--shadow-light);
-             white-space: nowrap;
-             text-align: center;
-             pointer-events: none; /* No interactuable */
-        }
-        /* Ajustes de posición */
-        .label-north { transform: translate(-50%, -150%); } /* Un poco más arriba */
-        .label-south { transform: translate(-50%, 50%); }  /* Un poco más abajo */
-        .label-east { transform: translate(30%, -50%); }  /* Un poco más a la derecha */
-        .label-west { transform: translate(-130%, -50%); } /* Un poco más a la izquierda */
-
-        /* Icono personalizado para marcador (opcional, si usas FontAwesome) */
-        .solar-marker-icon {
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-        }
+        /* Icono personalizado marcador (sin cambios) */
+        .solar-marker-icon { text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
 
     </style>
 </head>
@@ -337,16 +107,16 @@
 
     <script>
         // --- Configuración Inicial del Mapa ---
-        const initialCoords = [40.103, -4.384]; // España centro
+        const initialCoords = [40.103, -4.384];
         const initialZoom = 7;
         const loadingOverlay = document.getElementById('loading-overlay');
         const mapElement = document.getElementById('map');
 
-        mapElement.classList.add('loading'); // Oscurecer mapa al inicio
+        mapElement.classList.add('loading');
 
         const map = L.map('map', {
-            zoomControl: false, // Desactivado, usamos el control personalizado
-            attributionControl: false // Desactivado, añadiremos uno personalizado
+            zoomControl: false,
+            attributionControl: false
         }).setView(initialCoords, initialZoom);
 
         // --- Añadir Atribución Personalizada ---
@@ -355,10 +125,9 @@
              prefix: '<a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>'
          }).addTo(map);
 
-        // --- *** ORDEN CORREGIDO: Definir Capas y Controles AQUÍ *** ---
+        // --- Definir Capas y Controles ---
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        // Capas Base
         const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OSM</a>'
@@ -368,110 +137,96 @@
             attribution: 'Tiles &copy; Esri'
         });
 
-        // Listeners de error para las capas
-        streetLayer.on('tileerror', function(error, tile) {
-            console.warn('Error al cargar tesela de calles:', error.error, tile.src);
-        });
-        satelliteLayer.on('tileerror', function(error, tile) {
-            console.warn('Error al cargar tesela de satélite:', error.error, tile.src);
-        });
+        streetLayer.on('tileerror', function(error, tile) { console.warn('Error al cargar tesela de calles:', error.error, tile.src); });
+        satelliteLayer.on('tileerror', function(error, tile) { console.warn('Error al cargar tesela de satélite:', error.error, tile.src); });
 
-        // Añadir capa inicial al mapa
         streetLayer.addTo(map);
 
-        // Definir mapas base para el control de capas
         const baseMaps = {
             "<i class='fas fa-road'></i> Calles": streetLayer,
             "<i class='fas fa-satellite'></i> Satélite": satelliteLayer
         };
 
-        // Añadir control de capas al mapa
-        L.control.layers(baseMaps, null, {
-            position: 'bottomleft',
-            collapsed: true
-        }).addTo(map);
-        // --- *** FIN ORDEN CORREGIDO *** ---
+        L.control.layers(baseMaps, null, { position: 'bottomleft', collapsed: true }).addTo(map);
 
-
-        // --- Indicador de Carga (AHORA es seguro usar streetLayer) ---
+        // --- Indicador de Carga ---
         map.whenReady(() => {
-             console.log("Mapa listo (whenReady)."); // Log
-             // Escuchar evento 'load' de la capa inicial (streetLayer ya está definida)
+             console.log("Mapa listo (whenReady).");
              streetLayer.once('load', () => {
-                 console.log("Capa base cargada (load). Ocultando overlay."); // Log
+                 console.log("Capa base cargada (load). Ocultando overlay.");
                  loadingOverlay.classList.add('hidden');
-                 mapElement.classList.remove('loading'); // Restaurar brillo
+                 mapElement.classList.remove('loading');
              });
-             // Fallback por si 'load' no se dispara o tarda mucho
              setTimeout(() => {
                  if (!loadingOverlay.classList.contains('hidden')) {
-                     console.warn("Fallback timeout: Ocultando overlay después de 3 segundos."); // Log
+                     console.warn("Fallback timeout: Ocultando overlay después de 3.5 segundos.");
                      loadingOverlay.classList.add('hidden');
                      mapElement.classList.remove('loading');
                  }
-             }, 3500); // Aumentado ligeramente el timeout a 3.5s por si acaso
+             }, 3500);
         });
 
 
-        // --- Lógica Barra de Búsqueda ---
+        // --- Lógica Barra de Búsqueda (Adaptada para Vercel con fetch) ---
         const searchInput = document.getElementById('search-input');
         const suggestionsContainer = document.getElementById('suggestions-container');
         const searchContainer = document.getElementById('search-container');
         let debounceTimer;
 
         function displaySuggestions(results) {
-            suggestionsContainer.innerHTML = ''; // Limpiar
+            console.log(">>> displaySuggestions EJECUTADA. Resultados recibidos:", results); // Log Depuración
+            suggestionsContainer.innerHTML = '';
             if (results === null || results === undefined) {
+                 console.log("   Resultados son null/undefined, mostrando error."); // Log Depuración
                  suggestionsContainer.innerHTML = '<div class="suggestion-message">😕 Error al buscar. Intenta de nuevo.</div>';
                  suggestionsContainer.style.display = 'block';
                  return;
             }
-            if (!results || results.length === 0) {
+            // Manejar caso donde la API devuelve { error: "mensaje" }
+            if (typeof results.error === 'string') {
+                 console.log("   La API devolvió un error:", results.error); // Log Depuración
+                 showSearchError({ message: results.error });
+                 return;
+            }
+            // Manejar caso donde results no es un array o está vacío
+            if (!Array.isArray(results) || results.length === 0) {
+                 console.log("   Resultados vacíos, no es array o no válidos."); // Log Depuración
                  suggestionsContainer.style.display = 'none';
                  return;
             }
 
+            console.log(`   Procesando ${results.length} resultados.`); // Log Depuración
             results.forEach(place => {
                  const item = document.createElement('div');
                  item.classList.add('suggestion-item');
                  let mainName = place.address?.amenity || place.address?.shop || place.address?.tourism || place.address?.building || place.name || place.display_name.split(',')[0];
                  let details = [
-                     place.address?.road || place.address?.pedestrian,
-                     place.address?.house_number,
-                     place.address?.suburb,
+                     place.address?.road || place.address?.pedestrian, place.address?.house_number, place.address?.suburb,
                      place.address?.city || place.address?.town || place.address?.village,
-                     place.address?.state,
-                     place.address?.country
+                     place.address?.state, place.address?.country
                  ].filter(Boolean).join(', ');
 
-                 if (details.toLowerCase().includes(mainName.toLowerCase()) && details.length > mainName.length + 5) { // Evitar redundancia simple
-                     mainName = place.display_name.split(',')[0];
+                 if (details.toLowerCase().includes(mainName.toLowerCase()) && details.length > mainName.length + 5) {
+                      mainName = place.display_name.split(',')[0];
                  }
 
                  item.innerHTML = `<strong>${mainName}</strong><small>${details || place.display_name}</small>`;
                  item.dataset.lat = place.lat;
                  item.dataset.lon = place.lon;
                  item.dataset.displayName = mainName;
-
-                 if (place.boundingbox && place.boundingbox.length === 4) {
-                     item.dataset.bbox = place.boundingbox.join(',');
-                 } else {
-                     item.dataset.bbox = '';
-                 }
+                 if (place.boundingbox && place.boundingbox.length === 4) { item.dataset.bbox = place.boundingbox.join(','); }
+                 else { item.dataset.bbox = ''; }
 
                  item.addEventListener('click', () => {
                      const lat = parseFloat(item.dataset.lat);
                      const lon = parseFloat(item.dataset.lon);
                      const bboxStr = item.dataset.bbox;
                      let bbox = null;
-
                      if (bboxStr) { bbox = bboxStr.split(',').map(Number); }
 
                      if (bbox && bbox.length === 4 && (bbox[1] - bbox[0]) > 0.0001 && (bbox[3] - bbox[2]) > 0.0001) {
                          map.flyToBounds([[bbox[0], bbox[2]], [bbox[1], bbox[3]]], { padding: [50, 50], maxZoom: 17, duration: 1 });
-                     } else if (!isNaN(lat) && !isNaN(lon)) {
-                         map.flyTo([lat, lon], 16, { duration: 1 });
-                     }
+                     } else if (!isNaN(lat) && !isNaN(lon)) { map.flyTo([lat, lon], 16, { duration: 1 }); }
 
                      searchInput.value = item.dataset.displayName;
                      suggestionsContainer.innerHTML = '';
@@ -482,10 +237,12 @@
             suggestionsContainer.style.display = 'block';
         }
 
+        // Adaptada para mostrar mejor los errores de fetch
         function showSearchError(errorDetails) {
-            console.error("Error en google.script.run:", errorDetails);
-             suggestionsContainer.innerHTML = '<div class="suggestion-message">❌ Error del servidor al buscar.</div>';
-             suggestionsContainer.style.display = 'block';
+            const message = errorDetails?.message || "Error desconocido.";
+            console.error(">>> showSearchError EJECUTADA. Detalles:", errorDetails); // Log Depuración
+            suggestionsContainer.innerHTML = `<div class="suggestion-message">❌ Error al buscar: ${message}</div>`;
+            suggestionsContainer.style.display = 'block';
         }
 
         function triggerSearch() {
@@ -499,10 +256,34 @@
             suggestionsContainer.innerHTML = `<div class="suggestion-message"><div class="spinner spinner-small"></div>Buscando '${query}'...</div>`;
             suggestionsContainer.style.display = 'block';
 
-            google.script.run
-                .withSuccessHandler(displaySuggestions)
-                .withFailureHandler(showSearchError)
-                .searchNominatim(query);
+            // --- LLAMADA FETCH A LA API SERVERLESS DE VERCEL ---
+            const apiUrl = `/api/search?query=${encodeURIComponent(query)}`;
+
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        // Intenta leer el cuerpo del error como JSON para obtener más detalles
+                        return response.json().then(errorData => {
+                           // Lanza un error con el mensaje de la API o el statusText
+                           throw new Error(errorData.error || `Error ${response.status}: ${response.statusText}`);
+                        }).catch(() => {
+                            // Si el cuerpo del error no es JSON o está vacío, lanza error genérico
+                            throw new Error(`Error ${response.status}: ${response.statusText}`);
+                        });
+                    }
+                    return response.json(); // Parsea JSON si la respuesta es OK
+                })
+                .then(results => {
+                    // Llama a displaySuggestions con los resultados OK
+                    displaySuggestions(results);
+                })
+                .catch(error => {
+                    // Captura errores de red o los lanzados arriba
+                    console.error("Error en fetch o procesamiento:", error);
+                    // Llama a showSearchError con el objeto Error
+                    showSearchError(error); // Pasar el objeto error completo
+                });
+            // --- FIN LLAMADA FETCH ---
         }
 
         searchInput.addEventListener('input', () => {
@@ -518,58 +299,30 @@
         // --- Fin Lógica Barra de Búsqueda ---
 
 
-        // --- Lógica de Marcadores/Círculos/Etiquetas ---
+        // --- Lógica de Marcadores/Círculos/Etiquetas (Con círculos azules/opacos) ---
         const markersData = {};
 
-        function calculateDestinationPoint(lat, lon, distance, bearing) {
-            const R = 6371e3;
-            const lat1Rad = lat * Math.PI / 180;
-            const lon1Rad = lon * Math.PI / 180;
-            const bearingRad = bearing * Math.PI / 180;
-            const dRad = distance / R;
-            const lat2Rad = Math.asin(Math.sin(lat1Rad) * Math.cos(dRad) + Math.cos(lat1Rad) * Math.sin(dRad) * Math.cos(bearingRad));
-            const lon2Rad = lon1Rad + Math.atan2(Math.sin(bearingRad) * Math.sin(dRad) * Math.cos(lat1Rad), Math.cos(dRad) - Math.sin(lat1Rad) * Math.sin(lat2Rad));
-            return L.latLng(lat2Rad * 180 / Math.PI, lon2Rad * 180 / Math.PI);
-        }
-
-        function createLabel(latlng, text, positionClass) {
-            const labelIcon = L.divIcon({
-                 className: `radius-label ${positionClass}`,
-                 html: text,
-                 iconSize: null,
-                 iconAnchor: [0, 0] // Ajustado por CSS transform
-            });
-            return L.marker(latlng, {
-                icon: labelIcon,
-                interactive: false,
-                pane: 'shadowPane'
-            }).addTo(map);
-        }
+        function calculateDestinationPoint(lat, lon, distance, bearing) { /* Sin cambios */
+            const R = 6371e3; const lat1Rad = lat * Math.PI / 180; const lon1Rad = lon * Math.PI / 180; const bearingRad = bearing * Math.PI / 180; const dRad = distance / R; const lat2Rad = Math.asin(Math.sin(lat1Rad) * Math.cos(dRad) + Math.cos(lat1Rad) * Math.sin(dRad) * Math.cos(bearingRad)); const lon2Rad = lon1Rad + Math.atan2(Math.sin(bearingRad) * Math.sin(dRad) * Math.cos(lat1Rad), Math.cos(dRad) - Math.sin(lat1Rad) * Math.sin(lat2Rad)); return L.latLng(lat2Rad * 180 / Math.PI, lon2Rad * 180 / Math.PI);
+         }
+        function createLabel(latlng, text, positionClass) { /* Sin cambios */
+             const labelIcon = L.divIcon({ className: `radius-label ${positionClass}`, html: text, iconSize: null, iconAnchor: [0, 0] }); return L.marker(latlng, { icon: labelIcon, interactive: false, pane: 'shadowPane' }).addTo(map);
+         }
 
         function addMarkerWithCirclesAndLabels(latlng) {
-             const solarIcon = L.divIcon({
-                 html: '<i class="fas fa-solar-panel fa-2x" style="color: var(--primary-color);"></i>',
-                 className: 'solar-marker-icon',
-                 iconSize: [30, 30],
-                 iconAnchor: [15, 30]
-             });
+             const solarIcon = L.divIcon({ html: '<i class="fas fa-solar-panel fa-2x" style="color: var(--blue-light);"></i>', className: 'solar-marker-icon', iconSize: [30, 30], iconAnchor: [15, 30] }); // Icono usa azul ahora
 
-            const marker = L.marker(latlng, {
-                 icon: solarIcon, // Usar el icono personalizado
-                 draggable: false
-            }).addTo(map);
-
+            const marker = L.marker(latlng, { icon: solarIcon, draggable: false }).addTo(map);
             const markerId = L.Util.stamp(marker);
 
+            // --- CÍRCULOS ACTUALIZADOS (AZUL / NARANJA, MÁS OPACOS) ---
             const radii = [
-                { radius: 500,  label: "500m", color: '#FFC300', opacity: 0.45 },
-                { radius: 2000, label: "2km",  color: '#FF5733', opacity: 0.25 }
+                { radius: 500,  label: "500m", color: '#3388FF', opacity: 0.60 }, // Azul, opacidad 0.6
+                { radius: 2000, label: "2km",  color: '#FF5733', opacity: 0.40 }  // Naranja, opacidad 0.4
             ];
-            const bearings = [
-                { bearing: 0,   posClass: 'label-north' }, { bearing: 180, posClass: 'label-south' },
-                { bearing: 90,  posClass: 'label-east' },  { bearing: 270, posClass: 'label-west' }
-            ];
+            // --- FIN ACTUALIZACIÓN ---
 
+            const bearings = [ { bearing: 0, posClass: 'label-north' }, { bearing: 180, posClass: 'label-south' }, { bearing: 90, posClass: 'label-east' }, { bearing: 270, posClass: 'label-west' } ];
             const createdCircles = [];
             const createdLabels = [];
 
@@ -577,11 +330,12 @@
                 radii.forEach(rInfo => {
                     const circle = L.circle(latlng, {
                         radius: rInfo.radius, color: rInfo.color, fillColor: rInfo.color,
-                        fillOpacity: rInfo.opacity, weight: 1.5, className: 'autoconsumo-circle'
+                        fillOpacity: rInfo.opacity, weight: 1.5,
+                        className: 'autoconsumo-circle' // La clase ya no aplica animación
                     }).addTo(map);
-                    circle.getElement().style.setProperty('--initial-opacity', rInfo.opacity); // Para animación CSS
+                    // La siguiente línea ya no es necesaria sin animación, pero no daña
+                    // circle.getElement().style.setProperty('--initial-opacity', rInfo.opacity);
                     createdCircles.push(circle);
-
                     bearings.forEach(bInfo => {
                         const labelLatLng = calculateDestinationPoint(latlng.lat, latlng.lng, rInfo.radius, bInfo.bearing);
                         createdLabels.push(createLabel(labelLatLng, rInfo.label, bInfo.posClass));
@@ -590,59 +344,22 @@
 
                 markersData[markerId] = { marker: marker, circles: createdCircles, labels: createdLabels };
 
-                const popupContent = `
-                    <div class="popup-title">📍 Punto Seleccionado</div>
-                    <div class="popup-coords">
-                        <span>Lat:</span> ${latlng.lat.toFixed(5)}<br>
-                        <span>Lng:</span> ${latlng.lng.toFixed(5)}
-                    </div>
-                    <div style="font-size: 12px; color: #777; margin-bottom: 15px;">Radios de autoconsumo: 500m y 2km</div>
-                    <button class="popup-delete-button" onclick="removeMarkerAndElements(${markerId})">
-                        <i class="fas fa-trash-alt"></i> Eliminar Punto
-                    </button>
-                `;
+                const popupContent = ` <div class="popup-title">📍 Punto Seleccionado</div> <div class="popup-coords"> <span>Lat:</span> ${latlng.lat.toFixed(5)}<br> <span>Lng:</span> ${latlng.lng.toFixed(5)} </div> <div style="font-size: 12px; color: #777; margin-bottom: 15px;">Radios de autoconsumo: 500m y 2km</div> <button class="popup-delete-button" onclick="removeMarkerAndElements(${markerId})"> <i class="fas fa-trash-alt"></i> Eliminar Punto </button> `;
                 marker.bindPopup(popupContent).openPopup();
                 marker.on('click', () => marker.openPopup());
 
-            } catch (e) {
-                console.error("Error al crear círculos/etiquetas:", e);
-                if (marker) map.removeLayer(marker);
-                createdCircles.forEach(c => map.removeLayer(c));
-                createdLabels.forEach(l => map.removeLayer(l));
-                delete markersData[markerId];
-                alert("Hubo un problema al añadir el punto. Por favor, inténtalo de nuevo.");
-            }
-        }
-
-        window.removeMarkerAndElements = function(markerId) {
-            const data = markersData[markerId];
-            if (data) {
-                data.labels.forEach(label => map.removeLayer(label));
-                data.circles.forEach(circle => map.removeLayer(circle));
-                map.removeLayer(data.marker);
-                delete markersData[markerId];
-            } else {
-                console.warn("Intento de eliminar marcador no encontrado con ID:", markerId);
-            }
-        }
-
-        map.on('click', function(e) {
-             let target = e.originalEvent.target;
-             let clickedOnInteractiveElement = false;
-             while (target && target !== map._container) {
-                 if (target.classList.contains('leaflet-marker-icon') ||
-                     target.classList.contains('leaflet-control') ||
-                     target.closest('.leaflet-popup-content-wrapper'))
-                 {
-                     clickedOnInteractiveElement = true;
-                     break;
-                 }
-                 target = target.parentNode;
+            } catch (e) { /* ... manejo de error sin cambios ... */
+                 console.error("Error al crear círculos/etiquetas:", e); if (marker) map.removeLayer(marker); createdCircles.forEach(c => map.removeLayer(c)); createdLabels.forEach(l => map.removeLayer(l)); delete markersData[markerId]; alert("Hubo un problema al añadir el punto.");
              }
-            if (!clickedOnInteractiveElement) {
-                addMarkerWithCirclesAndLabels(e.latlng);
-            }
-        });
+        }
+
+        window.removeMarkerAndElements = function(markerId) { /* Sin cambios */
+             const data = markersData[markerId]; if (data) { data.labels.forEach(label => map.removeLayer(label)); data.circles.forEach(circle => map.removeLayer(circle)); map.removeLayer(data.marker); delete markersData[markerId]; } else { console.warn("Intento de eliminar marcador no encontrado con ID:", markerId); }
+         }
+
+        map.on('click', function(e) { /* Sin cambios */
+             let target = e.originalEvent.target; let clickedOnInteractiveElement = false; while (target && target !== map._container) { if (target.classList.contains('leaflet-marker-icon') || target.classList.contains('leaflet-control') || target.closest('.leaflet-popup-content-wrapper')) { clickedOnInteractiveElement = true; break; } target = target.parentNode; } if (!clickedOnInteractiveElement) { addMarkerWithCirclesAndLabels(e.latlng); }
+         });
         // --- Fin Lógica Marcadores ---
 
     </script>
