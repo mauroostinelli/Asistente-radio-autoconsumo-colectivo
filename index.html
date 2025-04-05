@@ -83,27 +83,36 @@
         /* Círculos de Radio (sin cambios) */
         .autoconsumo-circle {}
 
-        /* --- Etiquetas de Radio (Posición Ajustada v3 - Más Agresiva) --- */
+        /* --- Etiquetas de Radio (Posición Ajustada v4 - Hacia el Interior) --- */
         .radius-label {
-             background: rgba(255, 255, 255, 0.85); /* Un poco más opaco */
-             border: none;
-             color: var(--secondary-color);
-             font-weight: 600;
-             font-size: 11px;
-             padding: 3px 6px;
-             border-radius: 4px;
-             box-shadow: 0 1px 3px var(--shadow-light);
-             white-space: nowrap;
-             text-align: center;
-             pointer-events: none;
-             z-index: 650; /* Asegurar que esté sobre los círculos */
-         }
-        /* Ajuste Posiciones: Mover MUCHO más hacia el interior */
-        /* El anclaje (0,0) del translate está en el borde del círculo */
-        .label-north { transform: translate(-50%, -50%); }   /* Top del label toca el borde N */
-        .label-south { transform: translate(-50%, -280%); }  /* Mover AUN MÁS ARRIBA desde borde S */
-        .label-east  { transform: translate(-300%, -50%); }  /* Mover AUN MÁS IZQUIERDA desde borde E */
-        .label-west  { transform: translate(200%, -50%); }   /* Mover AUN MÁS DERECHA desde borde W */
+            background: rgba(255, 255, 255, 0.85); /* Un poco más opaco */
+            border: none;
+            color: var(--secondary-color);
+            font-weight: 600;
+            font-size: 11px;
+            padding: 3px 6px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px var(--shadow-light);
+            white-space: nowrap;
+            text-align: center;
+            pointer-events: none;
+            z-index: 650; /* Asegurar que esté sobre los círculos */
+        }
+        /* Ajuste Posiciones: Mover ligeramente hacia el interior desde el borde */
+        /* El punto (0,0) del translate está en la esquina superior izquierda de la etiqueta,
+           que a su vez está en el punto calculado sobre la circunferencia. */
+        .label-north { /* El punto está en el borde N. Mover etiqueta abajo y centrar H. */
+            transform: translate(-50%, 5px); /* Mitad ancho a la izq, 5px hacia abajo */
+        }
+        .label-south { /* El punto está en el borde S. Mover etiqueta arriba y centrar H. */
+            transform: translate(-50%, calc(-100% - 5px)); /* Mitad ancho a la izq, altura completa + 5px hacia arriba */
+        }
+        .label-east {  /* El punto está en el borde E. Mover etiqueta a la izquierda y centrar V. */
+            transform: translate(calc(-100% - 5px), -50%); /* Ancho completo + 5px a la izq, mitad altura hacia arriba */
+        }
+        .label-west {  /* El punto está en el borde W. Mover etiqueta a la derecha y centrar V. */
+            transform: translate(5px, -50%); /* 5px a la derecha, mitad altura hacia arriba */
+        }
         /* --- Fin Ajuste Posición Etiquetas --- */
 
 
@@ -143,8 +152,9 @@
         streetLayer.addTo(map); // Capa inicial
 
         // --- Miniaturas Base64 (Más Representativas v2 - Aprox 50x50) ---
-        const thumbOsm = 'data:image/png;base64,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';
-        const thumbSatellite = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAIAAACRXR/mAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAPnSURBVGhD7VnNixxlGM/9t3Ozs8xMZiIJiQZGGggJqY1YGIkGlhpYaKOFQAuLHQoaLbRQCGnBGgoJCRaiIWKhhcRCG5FSaKOFhcQwMUlIZiaZmd39vu/z/dzznPOc35/n/X4f5xx+n/O7/M7zPo/H4zEGgyExMTGqqqqqqaqpqalRlmXLMkSjUUzTpNFopJRcLpdEIoHf72dZlkwmk0qlIggC27Y1Go0Mw9ButwuFQgCAz+djmiZBEPA8j2VZmqbp9XphGIYsy6RSqWQyGSAQCAwMDDCZTJRKJXEcS6VSBEFgf38/nU6HruvMZrPZbDYej6uqqqqqqmqaplKpsNvtsCwLAFieh2VZiqKEQqF8Ph9BEFQqFe+tVqvJZDIcDmNbNkKIcRyHlFJCiOM4iqIoikKhECklpZQsyzCMVVUQQhAEHMfVarVyuVz9/f14PB4OhwNBEAqFAqfTyefzlmXx+/2kUilVVev1erlcDofD8Xg8Ho9HrVbDMIwgiFKpVC6XS6XSarXS6XQqlQpFUYyMjDCZTGzbFsdxyWQyjDEpJT8/PzQ0NCQnJ2dpaYlmswkAGAwGJEmCIMBhOCklHo9rfX2dlJJlWfl8PgMDA5RKJZPJRCQSyefzxWIxHo8HTdM4HA4cxyGEYBhGWVlZ9+/f5/b2NpVKxfcDAwMMBgNSStM08Xg8Go0GoVAIQohWq2UZhsPhQKVSIQgCQRAsyzJNk8lkQrFYMJlMSJKUyWRMJlMejwfHcSQSCWzb/sP5+fk8Ho9EIlEqlWq1WrlcjjAMEUVRFAVVVamqSrPZrNVqHMdxHAeAn58ffn5+6HQ6giAghCRJ6na7iKIoiiIAgNFoVCqVYhgGXddtNBoMw9But5uZmWFZlhqNBvB39fX1XddlWRaGYYRhWJaFEAJASYVCIRQK9Xq9VCplWRYhhCzLPp9PoVAIh8OQZdmLFy9evnw5NzeXy+WSzWbjuq5YLCaRSABArVZLNptNkqTBwUFqtRoAYLfbEQSBbduWZXEcx3GcdruNyWQSY8zlcgFAo9FIpVKEQiGCIFAqlYTDYQCQyWSIRCJUKhWKIkEQVCoVnU6HaZokScrlcqFQCFmW1Wg0HMdxHCclpa2tLfHx8WlpaYIgIAgCCEGtVmMYBoQQpVIJwzBYlpVKpVAUBQCazeZEIcRiMWzb5vP5ZDIZiqIEAgFBEJiZmSGVSgEAy7KMjo7S2NiIq6srdnZ28Pl8NE0jkUhUKhVFUbRaLRqNBgDA4/EgSRIIgqRSKU3TNE0jkUgkEonFYoFQIAxDrVZDlmVBEGKxGCllGIYsy6qqymaz9ff30+l0BEHgOA6fz4fneTzPF4vFqFQqAEAhkHA4HEKIbduSJCEIAsuyMAwhhKxWK41GQ5alqqqmaez3+zAMlUolwzAQQsIwjFqthsPhEATBNE2EEBqNBpZlkSSJ4zjHxsaoVCoYY6ZpSqVSRqMRy7L1ej1BEBAEgSRJtFotFAoBADs7O2q1mkqlQhAEAHAcB6B73u/3c3JyQqvVgmFYHMdxHGd/fx9VVavVKhaL9Xq9ZDIZDofBNE0URQCgbdtMJpMoii6XS5qmEQSBZVkYY7FYDABcLpfFYpHNZrm5uQEAqVSqVCphGOa/aDQar8/n8/n8XyQSEQqFWSwWXq9XrVbDNE2O43Q6nf7+/lqtFgBQKBQ2mw1BEGzbZrPZqamp9evXs3v37qNHj3748OGLFy9+eHp6enR0lJWVFZPJRCaT0el0NE3TtizLNE2KIizLklKqVKoMw6SUhmHwer1er5ckSQLgv+t2u+Vyubqu7/v+NE3TNE0URYqiEELHcRwOh0KhUIhEIjiOwzBMFEUEQQAAf10qlR8wGAwGQwjh9XqRZRnLsvF4HCKRxOPx6HQ6Xq9XKpWKxWKFQqFer1epVGq1msPhkM1mk0qlPM+Ty+XVanV6enr//v1jWRbhcJjBYHB7e5uLi4usrCypVKqOjg4ODg4cDofD4QBAURSfz2cYBofDgSRJLpeL4zgIgtBut6uqqtPpRCn9+q8X8P8ASQ4rG880/AAAAAAElFTkSuQmCC';
+        // **NOTA:** Si el problema de las miniaturas grises persiste, realiza las pruebas de diagnóstico mencionadas (verificar copia/pega, probar URL externa).
+        const thumbOsm = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAIAAACRXR/mAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAARMSURBVGhD7ZlvyNZVFMd/d763y8tLKaWUSiXS0pyZmmZm+sd0RzPGf6LMYtKkmU00U9qQkChjSqMCK7QMpLREaUZCS0/Ly7uXb+973/O+zznbc87H9X15H8+5z9nnt9da++y11+r1emVpaYmCggJ5eXnKysqSnp6uXC4XDocDAwMDlJaWKioqSrFYpKGhQXt7uxQKRSqVSllZWQqFQuXl5crKypKWlqZYLFaUSiVZWVkqKyvT0dGhVCpVrVZXVAuFQpblSUtLU1FRAQBYlgUFQVJSUvx+v6ysLHk8ntTUVIlEglQqZXp6msxmk5+fX1RqlUrl6elpuVyOp6cnVU3TNM2JiYk8Ho/s7Gy9vb3k5uYqFArN86y6rjRNs7KyQrtbUVERlmVRFEVSUpL8/HwOhwMDAwNUKhVFUcRisZRKpaqqqjiOQynVer0elVIURUVRxGazEQSBpmkyGo2WZbHNZnN9fb3b7Xa1Wi0UCsVgMCCEiKIo6XSaQqFAoVAIBAJYLBZZWVnm5uaYTCbp6elCoRAYhrFsXyqV6u/vx2g0SqVSUqnUkCFBEHI4HCQSCaFQyOfzCYVCJEmqFEWz2ew0TWNZZicnJzQajUKhQLPZDAQCmM1mkiSBruu4rkcymQwLCwumadLt9mk0GuXl5TIajbIsS6lUOp3OSJKUyWRcLpesrq5qtVppNBqbzaaqqrqu0+l0LMsiCALbtlarFREhgG3blFIURYlEIjwej6qqmqbx+XwUCgVBEJSWlmI0GqVSqQKBgCiKNE2zWCwyGo1cXFyQTCaz2Szbti0Wi1QqFTKZzGg0KpfLZVmWd+/eZd++fcrlMg8PD+VyOSkpqb9fX19/BwYGJFljGAaO4wwGA5qm8Xg8BEFgWRYhhOd5TqdTmqZxXRefz4cgCLqu4zgOAFRVdX19nWVZtm2z2+0URdHr9TKZTHg8HqVSSQghtVqNUrlarbVarWzb/m0jDMPo9Xq8Xi/HcSQSiYTDYZqmkUqlNE2Ty+U4HA7cbjdd11EI+Xy+VCpFLpcrlUqlUilBEGzb1uv1Go1GfD4fuq6TyWQYY7VabTQaiVTKwsKCTqeTyWQSiUR4PB6ZTAYhhMPhwOl0IggCpVJJaWlpfn5+oVCIIAiWZfF4PEKhEDMzM0wmE41GA4C7u7tEIhFFUdRqNZIkx3EUCkUAoFarEYlEoiiSnp6eXFJSQqvVQqFQyOfzNE2zWq3IZrOkUqmfn59ms9lisfj+/n6FQgGAQqEQCASQZRlCCKVSPk+WZfF4XBRFcRyHlFJCiGaz6XK5FAqFQqEQy7Isy9J1XTCMAgBBEPK5ubnG4/FpmobX60UhxHEcYRiGqqoURYnX65XL5QCAKIpUKhVFUfR6PVVV6+vr4zhOFEWapyGE3W5HpVJBEERVVVRVp9NpRVEAIBqNms1mqqoyGo3wer1wer1EIhGKomzbjuN4+sQ0TavVKhqNZrFYHMdhGAaO4wDAarU6PDxEMsztdvvr+PiYWqvVagCAcrmcVqsFwzCEQmFxcTFKKTKZjFqtFgSBbdtKpRJFUbFYLDQajWq16vF45HI5Pp+P67oUCoVarSYWi5Fl2dHRUXK5HPB//i4UCkWSoNfrSSQSxHFcNpvtdruZzWaFQgGA0+kEg8GEQgFBEGzb/re7urrSarUAYFmWruucnZ2Vz+epVCrbtm00GqWUhmF4eHgoCAIQQsIwmGw20+v1aDQazMzM6PV6WZY9Pj5+eHx8jNFoBACNRgMAx3GKxeIFBXo8HiEE0zTpdrvRaBTbtmEYhmFYr9cdHh5+/v5+PzQ0xLIsRVEQBAGADoeDqqpUKpVKpVDQa7ff7/bvd5nA4EIkgCALXdZmmyTAMtVoNy7IcxyGEpFIpd+/epbi4WCaTyefzWSwWyWSyVCrVarVqt9sdDgcej4fJZMLr9QqFQllZWTweDzMzM6FQ6PHxUYlEAoBcLofjODKZDKUUy7K4XC6n0ykqlaqhoUFCQgLZ2dnS0tJYWFiIxWIhCAJFUfR6vdnsb9l/GqZfADX519t/AEmLAAAAAElFTkSuQmCC';
+        const thumbSatellite = 'data:image/png;base64,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';
         const thumbTopo = 'data:image/png;base64,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';
         // --- Fin Miniaturas ---
 
@@ -169,17 +179,27 @@
         searchInput.addEventListener('input', () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(triggerSearch, 450); });
         document.addEventListener('click', (event) => { if (searchContainer && !searchContainer.contains(event.target)) { suggestionsContainer.style.display = 'none'; } });
 
-        // --- Lógica Marcadores/Círculos (Etiquetas ajustadas por CSS v3) ---
+        // --- Lógica Marcadores/Círculos (Etiquetas ajustadas por CSS v4) ---
         /* ... Las funciones calculateDestinationPoint, createLabel, addMarkerWithCirclesAndLabels, removeMarkerAndElements, map.on('click') se mantienen igual que en la versión anterior ... */
         const markersData = {};
         function calculateDestinationPoint(lat, lon, distance, bearing) { const R = 6371e3; const lat1Rad = lat * Math.PI / 180; const lon1Rad = lon * Math.PI / 180; const bearingRad = bearing * Math.PI / 180; const dRad = distance / R; const lat2Rad = Math.asin(Math.sin(lat1Rad) * Math.cos(dRad) + Math.cos(lat1Rad) * Math.sin(dRad) * Math.cos(bearingRad)); const lon2Rad = lon1Rad + Math.atan2(Math.sin(bearingRad) * Math.sin(dRad) * Math.cos(lat1Rad), Math.cos(dRad) - Math.sin(lat1Rad) * Math.sin(lat2Rad)); return L.latLng(lat2Rad * 180 / Math.PI, lon2Rad * 180 / Math.PI); }
-        function createLabel(latlng, text, positionClass) { const labelIcon = L.divIcon({ className: `radius-label ${positionClass}`, html: text, iconSize: null, iconAnchor: [0, 0] }); return L.marker(latlng, { icon: labelIcon, interactive: false, pane: 'shadowPane' // Asegura que las etiquetas estén sobre los círculos si es necesario, ajusta pane si no.
-        , zIndexOffset: 10 // Otra forma de intentar ponerlas encima
-    }).addTo(map); }
+        function createLabel(latlng, text, positionClass) {
+            const labelIcon = L.divIcon({
+                className: `radius-label ${positionClass}`, // Se aplican las clases CSS aquí
+                html: text,
+                iconSize: null, // Deja que CSS controle el tamaño con padding
+                // No establezcas iconAnchor aquí, confía en el default [0,0] y CSS transform
+            });
+            return L.marker(latlng, {
+                 icon: labelIcon,
+                 interactive: false, // Las etiquetas no deben ser clickables
+                 pane: 'markerPane', // Intenta usar markerPane o tooltipPane si shadowPane da problemas
+                 // zIndexOffset: 10 // Opcional si necesitas ajustar el apilamiento
+            }).addTo(map);
+        }
         function addMarkerWithCirclesAndLabels(latlng) { const solarIcon = L.divIcon({ html: '<i class="fas fa-solar-panel fa-2x" style="color: var(--blue-light);"></i>', className: 'solar-marker-icon', iconSize: [30, 30], iconAnchor: [15, 30] }); const marker = L.marker(latlng, { icon: solarIcon, draggable: false }).addTo(map); const markerId = L.Util.stamp(marker); const radii = [ { radius: 500, label: "500m", color: '#3388FF', opacity: 0.60 }, { radius: 2000, label: "2km", color: '#FF5733', opacity: 0.40 } ]; const bearings = [ { bearing: 0, posClass: 'label-north' }, { bearing: 180, posClass: 'label-south' }, { bearing: 90, posClass: 'label-east' }, { bearing: 270, posClass: 'label-west' } ]; const createdCircles = [], createdLabels = []; try { radii.forEach(rInfo => { const circle = L.circle(latlng, { radius: rInfo.radius, color: rInfo.color, fillColor: rInfo.color, fillOpacity: rInfo.opacity, weight: 1.5, className: 'autoconsumo-circle' }).addTo(map); createdCircles.push(circle); bearings.forEach(bInfo => { const labelLatLng = calculateDestinationPoint(latlng.lat, latlng.lng, rInfo.radius, bInfo.bearing); createdLabels.push(createLabel(labelLatLng, rInfo.label, bInfo.posClass)); }); }); markersData[markerId] = { marker: marker, circles: createdCircles, labels: createdLabels }; const popupContent = ` <div class="popup-title">📍 Punto Seleccionado</div> <div class="popup-coords"> <span>Lat:</span> ${latlng.lat.toFixed(5)}<br> <span>Lng:</span> ${latlng.lng.toFixed(5)} </div> <div style="font-size: 12px; color: #777; margin-bottom: 15px;">Radios de autoconsumo: 500m y 2km</div> <button class="popup-delete-button" onclick="removeMarkerAndElements(${markerId})"> <i class="fas fa-trash-alt"></i> Eliminar Punto </button> `; marker.bindPopup(popupContent).openPopup(); marker.on('click', () => marker.openPopup()); } catch (e) { console.error("Error al crear círculos/etiquetas:", e); if (marker) map.removeLayer(marker); createdCircles.forEach(c => map.removeLayer(c)); createdLabels.forEach(l => map.removeLayer(l)); delete markersData[markerId]; alert("Hubo un problema al añadir el punto."); } }
         window.removeMarkerAndElements = function(markerId) { const data = markersData[markerId]; if (data) { data.labels.forEach(label => map.removeLayer(label)); data.circles.forEach(circle => map.removeLayer(circle)); map.removeLayer(data.marker); delete markersData[markerId]; } else { console.warn("Intento de eliminar marcador no encontrado con ID:", markerId); } }
         map.on('click', function(e) { let target = e.originalEvent.target; let clickedOnInteractiveElement = false; while (target && target !== map._container) { if (target.classList.contains('leaflet-marker-icon') || target.classList.contains('leaflet-control') || target.closest('.leaflet-popup-content-wrapper')) { clickedOnInteractiveElement = true; break; } target = target.parentNode; } if (!clickedOnInteractiveElement) { addMarkerWithCirclesAndLabels(e.latlng); } });
-
 
     </script>
 </body>
