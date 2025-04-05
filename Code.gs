@@ -1,5 +1,5 @@
 /**
- * @OnlyCurrentDoc // Recomendado para mejorar rendimiento y seguridad si el script solo necesita acceso al documento actual (no aplica directamente aquí, pero es buena práctica general)
+ * @OnlyCurrentDoc // Recomendado para mejorar rendimiento y seguridad
  */
 
 /**
@@ -13,7 +13,7 @@ function doGet(e) {
   // Servir el archivo HTML llamado 'index.html' (asegúrate de que tu HTML se llama así)
   return HtmlService.createHtmlOutputFromFile('index')
       // Establece el título que aparecerá en la pestaña del navegador
-      .setTitle('☀️ Asistente Solar Interactivo v2') // Título actualizado y temático
+      .setTitle('☀️ Asistente Solar Interactivo v2')
       // Añade la meta tag viewport para diseño responsive en móviles
       .addMetaTag('viewport', 'width=device-width, initial-scale=1.0')
       // Permite que el contenido se muestre en iframes si es necesario (útil para embeber)
