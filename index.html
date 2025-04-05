@@ -17,10 +17,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <style>
-        /* --- Variables CSS --- */
         :root {
-            --primary-color: #3388FF; /* Azul Leaflet */
-            --secondary-color: #FF5733; /* Naranja Energía */
+            --primary-color: #3388FF;
+            --secondary-color: #FF5733;
             --text-color: #333;
             --bg-color: #f8f9fa;
             --white: #ffffff;
@@ -30,7 +29,6 @@
             --orange-energy: #FF5733;
         }
 
-        /* Estilos Globales, Mapa, Indicador Carga (sin cambios) ... */
         html, body { height: 100%; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; background-color: var(--bg-color); overflow: hidden; }
         * { box-sizing: border-box; }
         #map { height: 100vh; width: 100%; position: relative; z-index: 1; filter: brightness(1); transition: filter 0.5s ease; }
@@ -41,7 +39,6 @@
         #loading-overlay p { font-weight: 600; color: var(--text-color); }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Estilos Barra Búsqueda, Sugerencias (sin cambios funcionales) ... */
         #search-container { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1050; width: 90%; max-width: 450px; background-color: var(--white); border-radius: 30px; box-shadow: 0 4px 12px var(--shadow-medium); display: flex; align-items: center; padding: 8px 15px; transition: all 0.3s ease; }
         #search-container:focus-within { box-shadow: 0 6px 16px rgba(51, 136, 255, 0.5); }
         #search-input { flex-grow: 1; height: 40px; padding: 0 10px 0 35px; font-size: 16px; border: none; outline: none; border-radius: 30px; background: transparent; color: var(--text-color); position: relative; }
@@ -56,21 +53,18 @@
         .suggestion-message { padding: 15px 20px; color: #888; font-style: italic; display: flex; align-items: center; justify-content: center; }
         .suggestion-message .spinner-small { width: 18px; height: 18px; border-width: 2px; border: 2px solid var(--shadow-light); border-top-color: var(--secondary-color); border-radius: 50%; margin-right: 8px; animation: spin 0.8s linear infinite; }
 
-        /* Controles Leaflet (Zoom) (sin cambios) */
          .leaflet-control-zoom { border: none !important; border-radius: 8px !important; box-shadow: 0 2px 8px var(--shadow-medium) !important; }
          .leaflet-control-zoom a { color: var(--blue-light) !important; font-weight: bold !important; }
 
-        /* Estilos Control de Capas con Miniaturas (sin cambios) */
         .leaflet-control-layers { border: none !important; border-radius: 8px !important; box-shadow: 0 2px 8px var(--shadow-medium) !important; padding: 6px; }
         .leaflet-control-layers-base label { display: flex; align-items: center; margin-bottom: 6px; cursor: pointer; }
         .leaflet-control-layers-base label span { display: flex; align-items: center; margin-left: 5px; }
-        img.layer-thumbnail { width: 45px; height: 45px; border: 2px solid #ddd; border-radius: 4px; object-fit: cover; /* 'cover' puede ocultar la imagen si es muy pequeña, prueba 'contain' o quítalo si usas las simples */ transition: border-color 0.2s ease, transform 0.1s ease; background-color: #eee; /* Añade un fondo por si la imagen simple es muy pequeña */ }
+        img.layer-thumbnail { width: 45px; height: 45px; border: 2px solid #ddd; border-radius: 4px; object-fit: cover; transition: border-color 0.2s ease, transform 0.1s ease; background-color: #eee; }
         .leaflet-control-layers-selector:checked + span img.layer-thumbnail { border-color: var(--blue-light); }
         label:hover img.layer-thumbnail { transform: scale(1.03); border-color: #aaa; }
         .leaflet-control-layers-selector:checked + span img.layer-thumbnail { transform: scale(1); }
         .layer-label-text { font-size: 13px; margin-left: 8px; color: var(--text-color); }
 
-        /* Estilos Popups (sin cambios) ... */
          .leaflet-popup-content-wrapper { background-color: var(--white); border-radius: 12px; box-shadow: 0 3px 15px var(--shadow-medium); }
          .leaflet-popup-content { margin: 15px 20px !important; font-size: 14px; line-height: 1.6; text-align: center; color: var(--text-color); }
          .popup-title { font-weight: 600; font-size: 16px; color: var(--secondary-color); margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
@@ -80,19 +74,14 @@
          .popup-delete-button:hover { background: linear-gradient(45deg, #ee5253, #ff6b6b); box-shadow: 0 4px 8px rgba(255, 107, 107, 0.6); transform: translateY(-1px); }
          .popup-delete-button i { margin-right: 5px; }
 
-        /* Círculos de Radio (sin cambios) */
         .autoconsumo-circle {}
 
-        /* --- Etiquetas de Radio (Posición Ajustada v4 - Hacia el Interior) --- */
-        /* Mantenemos la solución del Problema 1 */
         .radius-label { background: rgba(255, 255, 255, 0.85); border: none; color: var(--secondary-color); font-weight: 600; font-size: 11px; padding: 3px 6px; border-radius: 4px; box-shadow: 0 1px 3px var(--shadow-light); white-space: nowrap; text-align: center; pointer-events: none; z-index: 650; }
         .label-north { transform: translate(-50%, 5px); }
         .label-south { transform: translate(-50%, calc(-100% - 5px)); }
         .label-east { transform: translate(calc(-100% - 5px), -50%); }
         .label-west { transform: translate(5px, -50%); }
-        /* --- Fin Ajuste Posición Etiquetas --- */
 
-        /* Icono marcador (sin cambios) */
         .solar-marker-icon { text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
 
     </style>
@@ -106,22 +95,17 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <script>
-        // Configuración Inicial Mapa (sin cambios) ...
         const initialCoords = [40.103, -4.384]; const initialZoom = 7; const loadingOverlay = document.getElementById('loading-overlay'); const mapElement = document.getElementById('map');
         mapElement.classList.add('loading');
         const map = L.map('map', { zoomControl: false, attributionControl: false }).setView(initialCoords, initialZoom);
         L.control.attribution({ position: 'bottomright', prefix: '<a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>' }).addTo(map);
 
-        // --- Definir Capas y Controles ---
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        // Capas Base Originales
         const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OSM</a>' });
         const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Tiles &copy; Esri' });
         const topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17, attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)' });
 
-        // --- ALTERNATIVA: Otras Capas Base ---
-        // Puedes descomentar una de estas y comentarla/reemplazarla en baseMaps si quieres probar otros estilos
         const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         	subdomains: 'abcd',
@@ -134,59 +118,40 @@
         	maxZoom: 20,
         	ext: 'png'
         });
-        // --- Fin Capas Alternativas ---
 
-        // Listeners de error (para las capas que uses activamente)
         streetLayer.on('tileerror', function(error, tile) { console.warn('Error tesela Calles:', error.error); });
         satelliteLayer.on('tileerror', function(error, tile) { console.warn('Error tesela Satélite:', error.error); });
         topoLayer.on('tileerror', function(error, tile) { console.warn('Error tesela Topo:', error.error); });
-        // Si usas otras capas, añade listeners para ellas también:
-        // cartoLight.on('tileerror', function(error, tile) { console.warn('Error tesela Carto Light:', error.error); });
-        // stamenToner.on('tileerror', function(error, tile) { console.warn('Error tesela Stamen Toner:', error.error); });
 
-        streetLayer.addTo(map); // Capa inicial
+        streetLayer.addTo(map);
 
-        // --- Miniaturas Base64 (Prueba con imágenes MUY simples) ---
-        // Se usan cuadrados de 1x1 pixel rojo, verde y azul.
-        // Si ESTAS se ven, el problema podría ser el tamaño/complejidad de las Base64 originales.
-        // Si ESTAS TAMPOCO se ven, el problema está en el CSS o en cómo Leaflet maneja las<img> en el control.
-        const thumbOsm = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=='; // Rojo
-        const thumbSatellite = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='; // Verde
-        const thumbTopo = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/ngAFgAJ/P90WXQAAAABJRU5ErkJggg=='; // Azul
-        // --- Fin Miniaturas Simples ---
+        const thumbOsm = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==';
+        const thumbSatellite = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+        const thumbTopo = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/ngAFgAJ/P90WXQAAAABJRU5ErkJggg==';
 
-        // Definir mapas base usando las miniaturas de prueba
         const baseMaps = {
             [`<span><img src="${thumbOsm}" class="layer-thumbnail" alt="Calles"> <span class="layer-label-text">Calles</span></span>`]: streetLayer,
             [`<span><img src="${thumbSatellite}" class="layer-thumbnail" alt="Satélite"> <span class="layer-label-text">Satélite</span></span>`]: satelliteLayer,
             [`<span><img src="${thumbTopo}" class="layer-thumbnail" alt="Topográfico"> <span class="layer-label-text">Topo</span></span>`]: topoLayer
-            // Si quieres añadir una capa alternativa al control:
-            // ,[`<span><img src="${thumbOsm}" class="layer-thumbnail" alt="Carto"> <span class="layer-label-text">Claro</span></span>`]: cartoLight // Usa una thumb simple o crea una nueva
         };
 
         L.control.layers(baseMaps, null, { position: 'bottomleft', collapsed: false }).addTo(map);
 
-        // --- Indicador de Carga (sin cambios) ---
         map.whenReady(() => { console.log("Mapa listo (whenReady)."); streetLayer.once('load', () => { console.log("Capa base cargada (load). Ocultando overlay."); loadingOverlay.classList.add('hidden'); mapElement.classList.remove('loading'); }); setTimeout(() => { if (!loadingOverlay.classList.contains('hidden')) { console.warn("Fallback timeout: Ocultando overlay después de 3.5 segundos."); loadingOverlay.classList.add('hidden'); mapElement.classList.remove('loading'); } }, 3500); });
 
-        // --- Lógica Barra de Búsqueda (fetch) (sin cambios) ---
-        // Nota: Esta lógica usa el endpoint '/api/search'. Cambiar la fuente de datos
-        // para la búsqueda requiere modificar el backend que responde en esa ruta.
         const searchInput = document.getElementById('search-input'); const suggestionsContainer = document.getElementById('suggestions-container'); const searchContainer = document.getElementById('search-container'); let debounceTimer;
-        function displaySuggestions(results) { /* ...código sin cambios... */ console.log(">>> displaySuggestions EJECUTADA. Resultados recibidos:", results); suggestionsContainer.innerHTML = ''; if (results === null || results === undefined) { console.log("   Resultados son null/undefined, mostrando error."); suggestionsContainer.innerHTML = '<div class="suggestion-message">😕 Error al buscar. Intenta de nuevo.</div>'; suggestionsContainer.style.display = 'block'; return; } if (typeof results.error === 'string') { console.log("   La API devolvió un error:", results.error); showSearchError({ message: results.error }); return; } if (!Array.isArray(results) || results.length === 0) { console.log("   Resultados vacíos, no es array o no válidos."); suggestionsContainer.style.display = 'none'; return; } console.log(`   Procesando ${results.length} resultados.`); results.forEach(place => { const item = document.createElement('div'); item.classList.add('suggestion-item'); let mainName = place.address?.amenity || place.address?.shop || place.address?.tourism || place.address?.building || place.name || place.display_name.split(',')[0]; let details = [ place.address?.road || place.address?.pedestrian, place.address?.house_number, place.address?.suburb, place.address?.city || place.address?.town || place.address?.village, place.address?.state, place.address?.country ].filter(Boolean).join(', '); if (details.toLowerCase().includes(mainName.toLowerCase()) && details.length > mainName.length + 5) { mainName = place.display_name.split(',')[0]; } item.innerHTML = `<strong>${mainName}</strong><small>${details || place.display_name}</small>`; item.dataset.lat = place.lat; item.dataset.lon = place.lon; item.dataset.displayName = mainName; if (place.boundingbox && place.boundingbox.length === 4) { item.dataset.bbox = place.boundingbox.join(','); } else { item.dataset.bbox = ''; } item.addEventListener('click', () => { const lat = parseFloat(item.dataset.lat); const lon = parseFloat(item.dataset.lon); const bboxStr = item.dataset.bbox; let bbox = null; if (bboxStr) { bbox = bboxStr.split(',').map(Number); } if (bbox && bbox.length === 4 && (bbox[1] - bbox[0]) > 0.0001 && (bbox[3] - bbox[2]) > 0.0001) { map.flyToBounds([[bbox[0], bbox[2]], [bbox[1], bbox[3]]], { padding: [50, 50], maxZoom: 17, duration: 1 }); } else if (!isNaN(lat) && !isNaN(lon)) { map.flyTo([lat, lon], 16, { duration: 1 }); } searchInput.value = item.dataset.displayName; suggestionsContainer.innerHTML = ''; suggestionsContainer.style.display = 'none'; }); suggestionsContainer.appendChild(item); }); suggestionsContainer.style.display = 'block'; }
+        function displaySuggestions(results) { console.log(">>> displaySuggestions EJECUTADA. Resultados recibidos:", results); suggestionsContainer.innerHTML = ''; if (results === null || results === undefined) { console.log("   Resultados son null/undefined, mostrando error."); suggestionsContainer.innerHTML = '<div class="suggestion-message">😕 Error al buscar. Intenta de nuevo.</div>'; suggestionsContainer.style.display = 'block'; return; } if (typeof results.error === 'string') { console.log("   La API devolvió un error:", results.error); showSearchError({ message: results.error }); return; } if (!Array.isArray(results) || results.length === 0) { console.log("   Resultados vacíos, no es array o no válidos."); suggestionsContainer.style.display = 'none'; return; } console.log(`   Procesando ${results.length} resultados.`); results.forEach(place => { const item = document.createElement('div'); item.classList.add('suggestion-item'); let mainName = place.address?.amenity || place.address?.shop || place.address?.tourism || place.address?.building || place.name || place.display_name.split(',')[0]; let details = [ place.address?.road || place.address?.pedestrian, place.address?.house_number, place.address?.suburb, place.address?.city || place.address?.town || place.address?.village, place.address?.state, place.address?.country ].filter(Boolean).join(', '); if (details.toLowerCase().includes(mainName.toLowerCase()) && details.length > mainName.length + 5) { mainName = place.display_name.split(',')[0]; } item.innerHTML = `<strong>${mainName}</strong><small>${details || place.display_name}</small>`; item.dataset.lat = place.lat; item.dataset.lon = place.lon; item.dataset.displayName = mainName; if (place.boundingbox && place.boundingbox.length === 4) { item.dataset.bbox = place.boundingbox.join(','); } else { item.dataset.bbox = ''; } item.addEventListener('click', () => { const lat = parseFloat(item.dataset.lat); const lon = parseFloat(item.dataset.lon); const bboxStr = item.dataset.bbox; let bbox = null; if (bboxStr) { bbox = bboxStr.split(',').map(Number); } if (bbox && bbox.length === 4 && (bbox[1] - bbox[0]) > 0.0001 && (bbox[3] - bbox[2]) > 0.0001) { map.flyToBounds([[bbox[0], bbox[2]], [bbox[1], bbox[3]]], { padding: [50, 50], maxZoom: 17, duration: 1 }); } else if (!isNaN(lat) && !isNaN(lon)) { map.flyTo([lat, lon], 16, { duration: 1 }); } searchInput.value = item.dataset.displayName; suggestionsContainer.innerHTML = ''; suggestionsContainer.style.display = 'none'; }); suggestionsContainer.appendChild(item); }); suggestionsContainer.style.display = 'block'; }
         function showSearchError(errorDetails) { const message = errorDetails?.message || "Error desconocido."; console.error(">>> showSearchError EJECUTADA. Detalles:", errorDetails); suggestionsContainer.innerHTML = `<div class="suggestion-message">❌ Error al buscar: ${message}</div>`; suggestionsContainer.style.display = 'block'; }
         function triggerSearch() { const query = searchInput.value.trim(); if (query.length < 3) { suggestionsContainer.innerHTML = ''; suggestionsContainer.style.display = 'none'; return; } suggestionsContainer.innerHTML = `<div class="suggestion-message"><div class="spinner spinner-small"></div>Buscando '${query}'...</div>`; suggestionsContainer.style.display = 'block'; const apiUrl = `/api/search?query=${encodeURIComponent(query)}`; fetch(apiUrl) .then(response => { if (!response.ok) { return response.json().then(errorData => { throw new Error(errorData.error || `Error ${response.status}: ${response.statusText}`); }).catch(() => { throw new Error(`Error ${response.status}: ${response.statusText}`); }); } return response.json(); }) .then(results => { displaySuggestions(results); }) .catch(error => { console.error("Error en fetch o procesamiento:", error); showSearchError(error); }); }
         searchInput.addEventListener('input', () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(triggerSearch, 450); });
         document.addEventListener('click', (event) => { if (searchContainer && !searchContainer.contains(event.target)) { suggestionsContainer.style.display = 'none'; } });
 
-        // --- Lógica Marcadores/Círculos (Etiquetas ajustadas por CSS v4) ---
-        // Mantenemos la solución del Problema 1
         const markersData = {};
-        function calculateDestinationPoint(lat, lon, distance, bearing) { /* ...código sin cambios... */ const R = 6371e3; const lat1Rad = lat * Math.PI / 180; const lon1Rad = lon * Math.PI / 180; const bearingRad = bearing * Math.PI / 180; const dRad = distance / R; const lat2Rad = Math.asin(Math.sin(lat1Rad) * Math.cos(dRad) + Math.cos(lat1Rad) * Math.sin(dRad) * Math.cos(bearingRad)); const lon2Rad = lon1Rad + Math.atan2(Math.sin(bearingRad) * Math.sin(dRad) * Math.cos(lat1Rad), Math.cos(dRad) - Math.sin(lat1Rad) * Math.sin(lat2Rad)); return L.latLng(lat2Rad * 180 / Math.PI, lon2Rad * 180 / Math.PI); }
-        function createLabel(latlng, text, positionClass) { /* ...código sin cambios... */ const labelIcon = L.divIcon({ className: `radius-label ${positionClass}`, html: text, iconSize: null, }); return L.marker(latlng, { icon: labelIcon, interactive: false, pane: 'markerPane', }).addTo(map); }
-        function addMarkerWithCirclesAndLabels(latlng) { /* ...código sin cambios... */ const solarIcon = L.divIcon({ html: '<i class="fas fa-solar-panel fa-2x" style="color: var(--blue-light);"></i>', className: 'solar-marker-icon', iconSize: [30, 30], iconAnchor: [15, 30] }); const marker = L.marker(latlng, { icon: solarIcon, draggable: false }).addTo(map); const markerId = L.Util.stamp(marker); const radii = [ { radius: 500, label: "500m", color: '#3388FF', opacity: 0.60 }, { radius: 2000, label: "2km", color: '#FF5733', opacity: 0.40 } ]; const bearings = [ { bearing: 0, posClass: 'label-north' }, { bearing: 180, posClass: 'label-south' }, { bearing: 90, posClass: 'label-east' }, { bearing: 270, posClass: 'label-west' } ]; const createdCircles = [], createdLabels = []; try { radii.forEach(rInfo => { const circle = L.circle(latlng, { radius: rInfo.radius, color: rInfo.color, fillColor: rInfo.color, fillOpacity: rInfo.opacity, weight: 1.5, className: 'autoconsumo-circle' }).addTo(map); createdCircles.push(circle); bearings.forEach(bInfo => { const labelLatLng = calculateDestinationPoint(latlng.lat, latlng.lng, rInfo.radius, bInfo.bearing); createdLabels.push(createLabel(labelLatLng, rInfo.label, bInfo.posClass)); }); }); markersData[markerId] = { marker: marker, circles: createdCircles, labels: createdLabels }; const popupContent = ` <div class="popup-title">📍 Punto Seleccionado</div> <div class="popup-coords"> <span>Lat:</span> ${latlng.lat.toFixed(5)}<br> <span>Lng:</span> ${latlng.lng.toFixed(5)} </div> <div style="font-size: 12px; color: #777; margin-bottom: 15px;">Radios de autoconsumo: 500m y 2km</div> <button class="popup-delete-button" onclick="removeMarkerAndElements(${markerId})"> <i class="fas fa-trash-alt"></i> Eliminar Punto </button> `; marker.bindPopup(popupContent).openPopup(); marker.on('click', () => marker.openPopup()); } catch (e) { console.error("Error al crear círculos/etiquetas:", e); if (marker) map.removeLayer(marker); createdCircles.forEach(c => map.removeLayer(c)); createdLabels.forEach(l => map.removeLayer(l)); delete markersData[markerId]; alert("Hubo un problema al añadir el punto."); } }
-        window.removeMarkerAndElements = function(markerId) { /* ...código sin cambios... */ const data = markersData[markerId]; if (data) { data.labels.forEach(label => map.removeLayer(label)); data.circles.forEach(circle => map.removeLayer(circle)); map.removeLayer(data.marker); delete markersData[markerId]; } else { console.warn("Intento de eliminar marcador no encontrado con ID:", markerId); } }
-        map.on('click', function(e) { /* ...código sin cambios... */ let target = e.originalEvent.target; let clickedOnInteractiveElement = false; while (target && target !== map._container) { if (target.classList.contains('leaflet-marker-icon') || target.classList.contains('leaflet-control') || target.closest('.leaflet-popup-content-wrapper')) { clickedOnInteractiveElement = true; break; } target = target.parentNode; } if (!clickedOnInteractiveElement) { addMarkerWithCirclesAndLabels(e.latlng); } });
+        function calculateDestinationPoint(lat, lon, distance, bearing) { const R = 6371e3; const lat1Rad = lat * Math.PI / 180; const lon1Rad = lon * Math.PI / 180; const bearingRad = bearing * Math.PI / 180; const dRad = distance / R; const lat2Rad = Math.asin(Math.sin(lat1Rad) * Math.cos(dRad) + Math.cos(lat1Rad) * Math.sin(dRad) * Math.cos(bearingRad)); const lon2Rad = lon1Rad + Math.atan2(Math.sin(bearingRad) * Math.sin(dRad) * Math.cos(lat1Rad), Math.cos(dRad) - Math.sin(lat1Rad) * Math.sin(lat2Rad)); return L.latLng(lat2Rad * 180 / Math.PI, lon2Rad * 180 / Math.PI); }
+        function createLabel(latlng, text, positionClass) { const labelIcon = L.divIcon({ className: `radius-label ${positionClass}`, html: text, iconSize: null, }); return L.marker(latlng, { icon: labelIcon, interactive: false, pane: 'markerPane', }).addTo(map); }
+        function addMarkerWithCirclesAndLabels(latlng) { const solarIcon = L.divIcon({ html: '<i class="fas fa-solar-panel fa-2x" style="color: var(--blue-light);"></i>', className: 'solar-marker-icon', iconSize: [30, 30], iconAnchor: [15, 30] }); const marker = L.marker(latlng, { icon: solarIcon, draggable: false }).addTo(map); const markerId = L.Util.stamp(marker); const radii = [ { radius: 500, label: "500m", color: '#3388FF', opacity: 0.60 }, { radius: 2000, label: "2km", color: '#FF5733', opacity: 0.40 } ]; const bearings = [ { bearing: 0, posClass: 'label-north' }, { bearing: 180, posClass: 'label-south' }, { bearing: 90, posClass: 'label-east' }, { bearing: 270, posClass: 'label-west' } ]; const createdCircles = [], createdLabels = []; try { radii.forEach(rInfo => { const circle = L.circle(latlng, { radius: rInfo.radius, color: rInfo.color, fillColor: rInfo.color, fillOpacity: rInfo.opacity, weight: 1.5, className: 'autoconsumo-circle' }).addTo(map); createdCircles.push(circle); bearings.forEach(bInfo => { const labelLatLng = calculateDestinationPoint(latlng.lat, latlng.lng, rInfo.radius, bInfo.bearing); createdLabels.push(createLabel(labelLatLng, rInfo.label, bInfo.posClass)); }); }); markersData[markerId] = { marker: marker, circles: createdCircles, labels: createdLabels }; const popupContent = ` <div class="popup-title">📍 Punto Seleccionado</div> <div class="popup-coords"> <span>Lat:</span> ${latlng.lat.toFixed(5)}<br> <span>Lng:</span> ${latlng.lng.toFixed(5)} </div> <div style="font-size: 12px; color: #777; margin-bottom: 15px;">Radios de autoconsumo: 500m y 2km</div> <button class="popup-delete-button" onclick="removeMarkerAndElements(${markerId})"> <i class="fas fa-trash-alt"></i> Eliminar Punto </button> `; marker.bindPopup(popupContent).openPopup(); marker.on('click', () => marker.openPopup()); } catch (e) { console.error("Error al crear círculos/etiquetas:", e); if (marker) map.removeLayer(marker); createdCircles.forEach(c => map.removeLayer(c)); createdLabels.forEach(l => map.removeLayer(l)); delete markersData[markerId]; alert("Hubo un problema al añadir el punto."); } }
+        window.removeMarkerAndElements = function(markerId) { const data = markersData[markerId]; if (data) { data.labels.forEach(label => map.removeLayer(label)); data.circles.forEach(circle => map.removeLayer(circle)); map.removeLayer(data.marker); delete markersData[markerId]; } else { console.warn("Intento de eliminar marcador no encontrado con ID:", markerId); } }
+        map.on('click', function(e) { let target = e.originalEvent.target; let clickedOnInteractiveElement = false; while (target && target !== map._container) { if (target.classList.contains('leaflet-marker-icon') || target.classList.contains('leaflet-control') || target.closest('.leaflet-popup-content-wrapper')) { clickedOnInteractiveElement = true; break; } target = target.parentNode; } if (!clickedOnInteractiveElement) { addMarkerWithCirclesAndLabels(e.latlng); } });
 
     </script>
 </body>
