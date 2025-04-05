@@ -4,7 +4,9 @@
     <base target="_top">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>☀️ Explorador Solar Interactivo</title> <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    <title>☀️ Explorador Solar Interactivo</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
      crossorigin=""/>
 
@@ -208,8 +210,13 @@
             box-shadow: 0 2px 8px var(--shadow-medium) !important;
         }
         .leaflet-control-layers-toggle {
-            background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23333"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-12h2v4h4v2h-4v4h-2v-4H7v-2h4V8z"/></svg>') !important; /* Icono personalizado (ejemplo) */
-             background-size: 18px 18px !important;
+             /* Icono personalizado básico (puedes mejorarlo con SVG) */
+             background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-layers-fill" viewBox="0 0 16 16"><path d="M7.765 1.559a.5.5 0 0 1 .47 0l7.5 4a.5.5 0 0 1 0 .882l-7.5 4a.5.5 0 0 1-.47 0l-7.5-4a.5.5 0 0 1 0-.882l7.5-4z"/><path d="m2.125 8.567-1.86.992a.5.5 0 0 0 0 .882l7.5 4a.5.5 0 0 0 .47 0l7.5-4a.5.5 0 0 0 0-.882l-1.86-.992-5.17 2.756a1.5 1.5 0 0 1-1.41 0l-5.17-2.756z"/></svg>') !important;
+             background-repeat: no-repeat !important;
+             background-position: center !important;
+             background-size: 18px 18px !important; /* Ajusta tamaño si es necesario */
+             width: 30px !important; /* Ajusta tamaño si es necesario */
+             height: 30px !important; /* Ajusta tamaño si es necesario */
         }
         .leaflet-control-zoom a { /* Botones +/- */
             color: var(--primary-color) !important;
@@ -297,11 +304,16 @@
              text-align: center;
              pointer-events: none; /* No interactuable */
         }
-        /* Ajustes de posición (iguales, pero el estilo base mejora legibilidad) */
+        /* Ajustes de posición */
         .label-north { transform: translate(-50%, -150%); } /* Un poco más arriba */
         .label-south { transform: translate(-50%, 50%); }  /* Un poco más abajo */
         .label-east { transform: translate(30%, -50%); }  /* Un poco más a la derecha */
         .label-west { transform: translate(-130%, -50%); } /* Un poco más a la izquierda */
+
+        /* Icono personalizado para marcador (opcional, si usas FontAwesome) */
+        .solar-marker-icon {
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
 
     </style>
 </head>
@@ -334,79 +346,82 @@
 
         const map = L.map('map', {
             zoomControl: false, // Desactivado, usamos el control personalizado
-            attributionControl: false // Desactivado, añadiremos uno personalizado si hace falta
+            attributionControl: false // Desactivado, añadiremos uno personalizado
         }).setView(initialCoords, initialZoom);
 
-         // --- Añadir Atribución Personalizada (mejor en esquina) ---
+        // --- Añadir Atribución Personalizada ---
          L.control.attribution({
-             position: 'bottomright', // Posición estándar
-             prefix: '<a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>' // Mantener atribución de Leaflet
+             position: 'bottomright',
+             prefix: '<a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>'
          }).addTo(map);
 
+        // --- *** ORDEN CORREGIDO: Definir Capas y Controles AQUÍ *** ---
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        // --- Indicador de Carga ---
-        // Ocultar overlay cuando el mapa esté listo y la capa base cargada
+        // Capas Base
+        const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OSM</a>'
+        });
+        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19,
+            attribution: 'Tiles &copy; Esri'
+        });
+
+        // Listeners de error para las capas
+        streetLayer.on('tileerror', function(error, tile) {
+            console.warn('Error al cargar tesela de calles:', error.error, tile.src);
+        });
+        satelliteLayer.on('tileerror', function(error, tile) {
+            console.warn('Error al cargar tesela de satélite:', error.error, tile.src);
+        });
+
+        // Añadir capa inicial al mapa
+        streetLayer.addTo(map);
+
+        // Definir mapas base para el control de capas
+        const baseMaps = {
+            "<i class='fas fa-road'></i> Calles": streetLayer,
+            "<i class='fas fa-satellite'></i> Satélite": satelliteLayer
+        };
+
+        // Añadir control de capas al mapa
+        L.control.layers(baseMaps, null, {
+            position: 'bottomleft',
+            collapsed: true
+        }).addTo(map);
+        // --- *** FIN ORDEN CORREGIDO *** ---
+
+
+        // --- Indicador de Carga (AHORA es seguro usar streetLayer) ---
         map.whenReady(() => {
-             // Puede que las teselas tarden un poco más
-             // Escuchamos el evento 'load' de la capa inicial
+             console.log("Mapa listo (whenReady)."); // Log
+             // Escuchar evento 'load' de la capa inicial (streetLayer ya está definida)
              streetLayer.once('load', () => {
+                 console.log("Capa base cargada (load). Ocultando overlay."); // Log
                  loadingOverlay.classList.add('hidden');
                  mapElement.classList.remove('loading'); // Restaurar brillo
              });
              // Fallback por si 'load' no se dispara o tarda mucho
              setTimeout(() => {
                  if (!loadingOverlay.classList.contains('hidden')) {
+                     console.warn("Fallback timeout: Ocultando overlay después de 3 segundos."); // Log
                      loadingOverlay.classList.add('hidden');
                      mapElement.classList.remove('loading');
                  }
-             }, 3000); // Espera máximo 3 segundos
+             }, 3500); // Aumentado ligeramente el timeout a 3.5s por si acaso
         });
 
 
-        // --- Controles Leaflet (Zoom y Capas) ---
-        L.control.zoom({ position: 'bottomright' }).addTo(map); // Zoom abajo-derecha (ya estaba)
-
-        // Capas Base con gestión de errores mejorada
-        const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OSM</a>' // Atribución más corta
-        });
-        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            maxZoom: 19,
-            attribution: 'Tiles &copy; Esri' // Atribución más corta
-        });
-
-        streetLayer.on('tileerror', function(error, tile) {
-            console.warn('Error al cargar tesela de calles:', error.error, tile.src);
-            // Podrías mostrar un aviso sutil al usuario si fallan muchas teselas
-        });
-        satelliteLayer.on('tileerror', function(error, tile) {
-            console.warn('Error al cargar tesela de satélite:', error.error, tile.src);
-        });
-
-        streetLayer.addTo(map); // Añadir capa inicial
-
-        const baseMaps = {
-            "<i class='fas fa-road'></i> Calles": streetLayer, // Icono opcional
-            "<i class='fas fa-satellite'></i> Satélite": satelliteLayer // Icono opcional
-        };
-
-        L.control.layers(baseMaps, null, {
-            position: 'bottomleft', // Posición (ya estaba)
-            collapsed: true // Mantener colapsado por defecto
-        }).addTo(map);
-
-
-        // --- Lógica Barra de Búsqueda (Mejorada con Spinner) ---
+        // --- Lógica Barra de Búsqueda ---
         const searchInput = document.getElementById('search-input');
         const suggestionsContainer = document.getElementById('suggestions-container');
         const searchContainer = document.getElementById('search-container');
         let debounceTimer;
 
         function displaySuggestions(results) {
-            suggestionsContainer.innerHTML = ''; // Limpiar (incluso el spinner)
+            suggestionsContainer.innerHTML = ''; // Limpiar
             if (results === null || results === undefined) {
-                 // Mostrar error directamente en el contenedor
                  suggestionsContainer.innerHTML = '<div class="suggestion-message">😕 Error al buscar. Intenta de nuevo.</div>';
                  suggestionsContainer.style.display = 'block';
                  return;
@@ -419,8 +434,6 @@
             results.forEach(place => {
                  const item = document.createElement('div');
                  item.classList.add('suggestion-item');
-
-                 // Intentar obtener un nombre más significativo
                  let mainName = place.address?.amenity || place.address?.shop || place.address?.tourism || place.address?.building || place.name || place.display_name.split(',')[0];
                  let details = [
                      place.address?.road || place.address?.pedestrian,
@@ -431,16 +444,14 @@
                      place.address?.country
                  ].filter(Boolean).join(', ');
 
-                 // Evitar redundancia si el nombre principal ya está en los detalles
-                 if (details.toLowerCase().includes(mainName.toLowerCase())) {
-                      mainName = place.display_name.split(',')[0]; // Usar el primero si hay redundancia
+                 if (details.toLowerCase().includes(mainName.toLowerCase()) && details.length > mainName.length + 5) { // Evitar redundancia simple
+                     mainName = place.display_name.split(',')[0];
                  }
 
-
-                 item.innerHTML = `<strong>${mainName}</strong><small>${details || place.display_name}</small>`; // Usar strong y small
+                 item.innerHTML = `<strong>${mainName}</strong><small>${details || place.display_name}</small>`;
                  item.dataset.lat = place.lat;
                  item.dataset.lon = place.lon;
-                 item.dataset.displayName = mainName; // Guardar el nombre usado
+                 item.dataset.displayName = mainName;
 
                  if (place.boundingbox && place.boundingbox.length === 4) {
                      item.dataset.bbox = place.boundingbox.join(',');
@@ -454,18 +465,15 @@
                      const bboxStr = item.dataset.bbox;
                      let bbox = null;
 
-                     if (bboxStr) {
-                         bbox = bboxStr.split(',').map(Number);
-                     }
+                     if (bboxStr) { bbox = bboxStr.split(',').map(Number); }
 
-                     // Priorizar BBox para mejor encuadre
-                     if (bbox && bbox.length === 4 && (bbox[1] - bbox[0]) > 0.001 && (bbox[3] - bbox[2]) > 0.001) { // Evitar BBox demasiado pequeños
-                         map.flyToBounds([[bbox[0], bbox[2]], [bbox[1], bbox[3]]], { padding: [50, 50], maxZoom: 17 }); // Vuelo suave con padding
+                     if (bbox && bbox.length === 4 && (bbox[1] - bbox[0]) > 0.0001 && (bbox[3] - bbox[2]) > 0.0001) {
+                         map.flyToBounds([[bbox[0], bbox[2]], [bbox[1], bbox[3]]], { padding: [50, 50], maxZoom: 17, duration: 1 });
                      } else if (!isNaN(lat) && !isNaN(lon)) {
-                         map.flyTo([lat, lon], 16, { duration: 1 }); // Vuelo más rápido a zoom 16
+                         map.flyTo([lat, lon], 16, { duration: 1 });
                      }
 
-                     searchInput.value = item.dataset.displayName; // Usar el nombre limpio guardado
+                     searchInput.value = item.dataset.displayName;
                      suggestionsContainer.innerHTML = '';
                      suggestionsContainer.style.display = 'none';
                  });
@@ -488,93 +496,78 @@
                  return;
             }
 
-            // Mostrar indicador de búsqueda con spinner
             suggestionsContainer.innerHTML = `<div class="suggestion-message"><div class="spinner spinner-small"></div>Buscando '${query}'...</div>`;
             suggestionsContainer.style.display = 'block';
 
-            // Llamada a Google Apps Script
             google.script.run
                 .withSuccessHandler(displaySuggestions)
                 .withFailureHandler(showSearchError)
-                .searchNominatim(query); // Asegúrate que esta función exista en tu Code.gs
+                .searchNominatim(query);
         }
 
-        // Debounce para no llamar a la API en cada tecla
         searchInput.addEventListener('input', () => {
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(triggerSearch, 450); // Ligero aumento del tiempo
+            debounceTimer = setTimeout(triggerSearch, 450);
         });
 
-        // Cerrar sugerencias si se hace clic fuera
         document.addEventListener('click', (event) => {
-             // Asegurarse que searchContainer existe antes de llamar a contains
             if (searchContainer && !searchContainer.contains(event.target)) {
                 suggestionsContainer.style.display = 'none';
             }
         });
+        // --- Fin Lógica Barra de Búsqueda ---
 
 
-        // --- Lógica de Marcadores/Círculos/Etiquetas (Con Mejoras Visuales) ---
-        const markersData = {}; // Almacena { marker, circles, labels }
+        // --- Lógica de Marcadores/Círculos/Etiquetas ---
+        const markersData = {};
 
-        // Función para calcular puntos (sin cambios)
         function calculateDestinationPoint(lat, lon, distance, bearing) {
-            const R = 6371e3; // Radio Tierra en metros
+            const R = 6371e3;
             const lat1Rad = lat * Math.PI / 180;
             const lon1Rad = lon * Math.PI / 180;
             const bearingRad = bearing * Math.PI / 180;
-            const dRad = distance / R; // Distancia angular
-
-            const lat2Rad = Math.asin(Math.sin(lat1Rad) * Math.cos(dRad) +
-                                     Math.cos(lat1Rad) * Math.sin(dRad) * Math.cos(bearingRad));
-            const lon2Rad = lon1Rad + Math.atan2(Math.sin(bearingRad) * Math.sin(dRad) * Math.cos(lat1Rad),
-                                              Math.cos(dRad) - Math.sin(lat1Rad) * Math.sin(lat2Rad));
-
+            const dRad = distance / R;
+            const lat2Rad = Math.asin(Math.sin(lat1Rad) * Math.cos(dRad) + Math.cos(lat1Rad) * Math.sin(dRad) * Math.cos(bearingRad));
+            const lon2Rad = lon1Rad + Math.atan2(Math.sin(bearingRad) * Math.sin(dRad) * Math.cos(lat1Rad), Math.cos(dRad) - Math.sin(lat1Rad) * Math.sin(lat2Rad));
             return L.latLng(lat2Rad * 180 / Math.PI, lon2Rad * 180 / Math.PI);
         }
 
-        // Función para crear etiquetas (ahora usa el estilo CSS .radius-label)
         function createLabel(latlng, text, positionClass) {
             const labelIcon = L.divIcon({
-                 className: `radius-label ${positionClass}`, // Clases para estilo y posición
+                 className: `radius-label ${positionClass}`,
                  html: text,
-                 iconSize: null, // Tamaño automático basado en contenido y CSS
-                 iconAnchor: [0, 0] // Ajustar ancla según las clases de posición en CSS
+                 iconSize: null,
+                 iconAnchor: [0, 0] // Ajustado por CSS transform
             });
             return L.marker(latlng, {
                 icon: labelIcon,
-                interactive: false, // No capturar clics
-                pane: 'shadowPane' // Dibujar debajo de marcadores (o 'tooltipPane' para encima)
+                interactive: false,
+                pane: 'shadowPane'
             }).addTo(map);
         }
 
-        // Función principal para añadir marcador y elementos asociados
         function addMarkerWithCirclesAndLabels(latlng) {
-             // Crear un icono personalizado para el marcador (ej: un sol)
              const solarIcon = L.divIcon({
-                 html: '<i class="fas fa-solar-panel fa-2x" style="color: var(--primary-color);"></i>', // Icono de panel solar
-                 className: 'solar-marker-icon', // Clase para posible estilo adicional
+                 html: '<i class="fas fa-solar-panel fa-2x" style="color: var(--primary-color);"></i>',
+                 className: 'solar-marker-icon',
                  iconSize: [30, 30],
-                 iconAnchor: [15, 30] // Ancla en la base central del icono
+                 iconAnchor: [15, 30]
              });
 
             const marker = L.marker(latlng, {
-                 // icon: solarIcon, // Usar el icono personalizado
-                 draggable: false // Podría ser true si quieres permitir moverlo
+                 icon: solarIcon, // Usar el icono personalizado
+                 draggable: false
             }).addTo(map);
 
-            const markerId = L.Util.stamp(marker); // ID único para el marcador
+            const markerId = L.Util.stamp(marker);
 
             const radii = [
-                { radius: 500,  label: "500m", color: '#FFC300', opacity: 0.45 }, // Amarillo solar, más opaco
-                { radius: 2000, label: "2km",  color: '#FF5733', opacity: 0.25 }  // Naranja energía, más transparente
+                { radius: 500,  label: "500m", color: '#FFC300', opacity: 0.45 },
+                { radius: 2000, label: "2km",  color: '#FF5733', opacity: 0.25 }
             ];
-            // Orientaciones para las etiquetas (N, S, E, O)
             const bearings = [
-                { bearing: 0,   posClass: 'label-north' }, // Norte
-                { bearing: 180, posClass: 'label-south' }, // Sur
-                { bearing: 90,  posClass: 'label-east' },  // Este
-                { bearing: 270, posClass: 'label-west' }   // Oeste
+                { bearing: 0,   posClass: 'label-north' }, { bearing: 180, posClass: 'label-south' },
+                { bearing: 90,  posClass: 'label-east' },  { bearing: 270, posClass: 'label-west' }
             ];
 
             const createdCircles = [];
@@ -583,34 +576,20 @@
             try {
                 radii.forEach(rInfo => {
                     const circle = L.circle(latlng, {
-                        radius: rInfo.radius,
-                        color: rInfo.color,        // Color del borde
-                        fillColor: rInfo.color,    // Color de relleno
-                        fillOpacity: rInfo.opacity,
-                        weight: 1.5,               // Grosor del borde
-                        className: 'autoconsumo-circle' // Clase para la animación CSS
+                        radius: rInfo.radius, color: rInfo.color, fillColor: rInfo.color,
+                        fillOpacity: rInfo.opacity, weight: 1.5, className: 'autoconsumo-circle'
                     }).addTo(map);
-
-                    // Añadir la opacidad inicial como variable CSS para la animación
-                    circle.getElement().style.setProperty('--initial-opacity', rInfo.opacity);
-
+                    circle.getElement().style.setProperty('--initial-opacity', rInfo.opacity); // Para animación CSS
                     createdCircles.push(circle);
 
-                    // Crear etiquetas para cada radio en las 4 direcciones
                     bearings.forEach(bInfo => {
                         const labelLatLng = calculateDestinationPoint(latlng.lat, latlng.lng, rInfo.radius, bInfo.bearing);
                         createdLabels.push(createLabel(labelLatLng, rInfo.label, bInfo.posClass));
                     });
                 });
 
-                // Guardar referencias para poder eliminar todo junto
-                markersData[markerId] = {
-                    marker: marker,
-                    circles: createdCircles,
-                    labels: createdLabels
-                };
+                markersData[markerId] = { marker: marker, circles: createdCircles, labels: createdLabels };
 
-                // Crear contenido del Popup mejorado
                 const popupContent = `
                     <div class="popup-title">📍 Punto Seleccionado</div>
                     <div class="popup-coords">
@@ -622,18 +601,11 @@
                         <i class="fas fa-trash-alt"></i> Eliminar Punto
                     </button>
                 `;
-
-                marker.bindPopup(popupContent).openPopup(); // Abrir popup al crear
-
-                // Asegurar que el popup se abre al hacer clic de nuevo
+                marker.bindPopup(popupContent).openPopup();
                 marker.on('click', () => marker.openPopup());
-
-                // Opcional: Animar la aparición del marcador (requiere CSS adicional)
-                // marker.getElement().classList.add('marker-appear-animation');
 
             } catch (e) {
                 console.error("Error al crear círculos/etiquetas:", e);
-                // Limpieza en caso de error
                 if (marker) map.removeLayer(marker);
                 createdCircles.forEach(c => map.removeLayer(c));
                 createdLabels.forEach(l => map.removeLayer(l));
@@ -642,37 +614,31 @@
             }
         }
 
-        // Función para eliminar todo (marcador, círculos, etiquetas) - Mejorada
         window.removeMarkerAndElements = function(markerId) {
             const data = markersData[markerId];
             if (data) {
-                // Eliminar gradualmente para un efecto suave (opcional)
                 data.labels.forEach(label => map.removeLayer(label));
                 data.circles.forEach(circle => map.removeLayer(circle));
-                map.removeLayer(data.marker); // Eliminar marcador al final
-
-                delete markersData[markerId]; // Limpiar la referencia
+                map.removeLayer(data.marker);
+                delete markersData[markerId];
             } else {
                 console.warn("Intento de eliminar marcador no encontrado con ID:", markerId);
             }
         }
 
-        // Evento click en el mapa para añadir marcador (evitando clics en marcadores existentes)
         map.on('click', function(e) {
-             // Comprobación más robusta para evitar añadir marcador si se hizo clic en un control o un marcador existente
              let target = e.originalEvent.target;
              let clickedOnInteractiveElement = false;
              while (target && target !== map._container) {
                  if (target.classList.contains('leaflet-marker-icon') ||
                      target.classList.contains('leaflet-control') ||
-                     target.closest('.leaflet-popup-content-wrapper')) // Evitar si se clica dentro de un popup
+                     target.closest('.leaflet-popup-content-wrapper'))
                  {
                      clickedOnInteractiveElement = true;
                      break;
                  }
                  target = target.parentNode;
              }
-
             if (!clickedOnInteractiveElement) {
                 addMarkerWithCirclesAndLabels(e.latlng);
             }
