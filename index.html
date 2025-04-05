@@ -56,62 +56,58 @@
          .leaflet-control-zoom { border: none !important; border-radius: 8px !important; box-shadow: 0 2px 8px var(--shadow-medium) !important; }
          .leaflet-control-zoom a { color: var(--blue-light) !important; font-weight: bold !important; }
 
-         /* Estilos mejorados para el control de capas */
         .leaflet-control-layers {
             border: none !important;
             border-radius: 8px !important;
             box-shadow: 0 2px 8px var(--shadow-medium) !important;
             padding: 8px;
-            background-color: rgba(255, 255, 255, 0.95); /* Fondo ligeramente translúcido */
+            background-color: rgba(255, 255, 255, 0.95);
         }
         .leaflet-control-layers-base label {
             display: flex;
             align-items: center;
-            margin-bottom: 8px; /* Más espacio entre capas */
+            margin-bottom: 8px;
             cursor: pointer;
-            padding: 5px; /* Añadir padding para hover */
+            padding: 5px;
             border-radius: 4px;
             transition: background-color 0.2s ease;
         }
          .leaflet-control-layers-base label:last-child {
-            margin-bottom: 0; /* Sin margen inferior para el último elemento */
+            margin-bottom: 0;
         }
         .leaflet-control-layers-base label:hover {
-             background-color: #f0f0f0; /* Resaltado suave al pasar el ratón */
+             background-color: #f0f0f0;
         }
         .leaflet-control-layers-base label span {
             display: flex;
             align-items: center;
-            margin-left: 5px; /* Espacio entre radio button y contenido */
+            margin-left: 5px;
         }
         img.layer-thumbnail {
             width: 45px;
             height: 45px;
-            border: 1px solid #ccc; /* Borde más sutil */
+            border: 1px solid #ccc;
             border-radius: 4px;
             object-fit: cover;
             transition: border-color 0.2s ease, transform 0.1s ease;
             background-color: #eee;
-            display: block; /* Asegura que la imagen se comporte como bloque */
+            display: block;
         }
-        /* Estilo cuando la capa está seleccionada */
         .leaflet-control-layers-selector:checked + span img.layer-thumbnail {
-            border: 2px solid var(--blue-light); /* Borde azul más grueso */
+            border: 2px solid var(--blue-light);
         }
-        /* Efecto hover en la miniatura */
         label:hover img.layer-thumbnail {
-            transform: scale(1.05); /* Ligero zoom al pasar el ratón */
+            transform: scale(1.05);
             border-color: #999;
         }
-         /* Contrarrestar el hover si está seleccionado */
         .leaflet-control-layers-selector:checked + span img.layer-thumbnail {
             transform: scale(1);
         }
         .layer-label-text {
             font-size: 13px;
-            margin-left: 10px; /* Más espacio entre imagen y texto */
+            margin-left: 10px;
             color: var(--text-color);
-            font-weight: 400; /* Peso normal */
+            font-weight: 400;
         }
 
         .leaflet-popup-content-wrapper { background-color: var(--white); border-radius: 12px; box-shadow: 0 3px 15px var(--shadow-medium); }
@@ -125,29 +121,24 @@
 
         .autoconsumo-circle {}
 
-        /* Estilo para las etiquetas de radio */
         .radius-label {
-            background: rgba(255, 255, 255, 0.9); /* Fondo más opaco */
-            border: none; /* Sin borde */
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
             color: var(--secondary-color);
             font-weight: 600;
             font-size: 11px;
-            padding: 3px 7px; /* Un poco más de padding */
+            padding: 3px 7px;
             border-radius: 4px;
-            box-shadow: 0 1px 4px var(--shadow-light); /* Sombra más suave */
+            box-shadow: 0 1px 4px var(--shadow-light);
             white-space: nowrap;
             text-align: center;
-            pointer-events: none; /* No interactiva */
+            pointer-events: none;
             z-index: 650;
-             /* Las propiedades transform ya no son necesarias aquí */
-             /* El iconAnchor en JS se encargará del posicionamiento */
         }
-        /* Clases .label-north, .label-south, etc. ya no necesitan transform */
         .label-north {}
         .label-south {}
         .label-east {}
         .label-west {}
-
 
         .solar-marker-icon { text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
 
@@ -162,14 +153,16 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <script>
-        const initialCoords = [40.103, -4.384]; const initialZoom = 7; const loadingOverlay = document.getElementById('loading-overlay'); const mapElement = document.getElementById('map');
+        const initialCoords = [40.103, -4.384];
+        const initialZoom = 7;
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const mapElement = document.getElementById('map');
         mapElement.classList.add('loading');
         const map = L.map('map', { zoomControl: false, attributionControl: false }).setView(initialCoords, initialZoom);
         L.control.attribution({ position: 'bottomright', prefix: '<a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a>' }).addTo(map);
 
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        // --- Definición de Capas Base ---
         const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OSM</a>' });
         const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Tiles &copy; Esri' });
         const topoLayer = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17, attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)' });
@@ -178,133 +171,232 @@
             subdomains: 'abcd',
             maxZoom: 20
         });
-        const stamenToner = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.{ext}', {
-            attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors',
-            subdomains: 'abcd',
-            minZoom: 0,
-            maxZoom: 20,
-            ext: 'png'
-        });
 
-        // Manejo de errores de teselas (opcional pero bueno)
         streetLayer.on('tileerror', function(error, tile) { console.warn('Error tesela Calles:', error.error); });
         satelliteLayer.on('tileerror', function(error, tile) { console.warn('Error tesela Satélite:', error.error); });
         topoLayer.on('tileerror', function(error, tile) { console.warn('Error tesela Topo:', error.error); });
         cartoLight.on('tileerror', function(error, tile) { console.warn('Error tesela Carto Light:', error.error); });
-        stamenToner.on('tileerror', function(error, tile) { console.warn('Error tesela Stamen Toner:', error.error); });
 
-        // Añadir capa inicial
         streetLayer.addTo(map);
 
-        // --- Miniaturas (Thumbnails) para el Control de Capas ---
-        // IMPORTANTE: Reemplaza estos SVGs Base64 por imágenes reales (PNG/JPG)
-        // Puedes usar un codificador online de Base64 para tus imágenes
-        const thumbOsm = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSIgdmlld0JveD0iMCAwIDQ1IDQ1Ij48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZWVlIi8+PHBhdGggZD0iTTUgMTUgSCA0MCBNIDEwIDMwIEggMzUgTSAyMi41IDUgViA0MCIgc3Ryb2tlPSIjYWRhZGFkIiBzdHJva2Utd2lkdGg9IjQiIGZpbGw9Im5vbmUiLz48cGF0aCBkPSJNIDEwIDEwIEwgMzUgMzUgTSAzNSAxMCBMIDEwIDM1IiBzdHJva2U9IiNhYWI5YzYiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIvPjwvc3ZnPg=='; // Gris claro con líneas grises/azules
-        const thumbSatellite = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSIgdmlld0JveD0iMCAwIDQ1IDQ1Ij48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMDUzMjBkIi8+PGNpcmNsZSBjeD0iMTUiIGN5PSIxMiIgcj0iNSIgZmlsbD0iI2ZmZiIvPjxjaXJjbGUgY3g9IjI1IiBjeT0iMjUiIHI9IjgiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuOCIvPjxwYXRoIGQ9Ik0wIDM1IFEgMjAgMjUgNDUgNDAiIHN0cm9rZT0iIzY4YTY3YiIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIi8+PC9zdmc+'; // Verde oscuro con 'nubes' y 'agua'
-        const thumbTopo = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSIgdmlld0JveD0iMCAwIDQ1IDQ1Ij48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZDhjYTgxIi8+PHBhdGggZD0iTTUgNSBDIDE1IDE1LCAzMCAwLCA0MCAxMCBNIDUgMTggQyAxOCAyNSwgMjggMTUsIDQwIDI1IE0gNSAzNSBDIDE1IDQwLCAzMCAzMCwgNDAgNDAiIHN0cm9rZT0iIzhhNmY0MiIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiLz48L3N2Zz4='; // Beige con líneas de contorno marrones/verdes
-        const thumbCartoLight = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSIgdmlld0JveD0iMCAwIDQ1IDQ1Ij48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjRmNGY0Ii8+PHBhdGggZD0iTTUgMTUgSCA0MCBNIDEwIDMwIEggMzUiIHN0cm9rZT0iI2QwZDBkMCIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTIyLjUgNSBWIDQwIiBzdHJva2U9IiNjMGMwYzMiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIvPjwvc3ZnPg=='; // Gris muy claro con líneas tenues
-        const thumbStamenToner = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSIgdmlld0JveD0iMCAwIDQ1IDQ1Ij48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTUgNSBIIDQwIFYgNDAgSCA1IFoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTUgMjAgSCA0MCBNIDEwIDQwIFYgNSIgc3Ryb2tlPSIjMzMzIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz48L3N2Zz4='; // Blanco y negro alto contraste
+        const thumbOsm = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSIgdmlld0JveD0iMCAwIDQ1IDQ1Ij48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZWVlIi8+PHBhdGggZD0iTTUgMTUgSCA0MCBNIDEwIDMwIEggMzUgTSAyMi41IDUgViA0MCIgc3Ryb2tlPSIjYWRhZGFkIiBzdHJva2Utd2lkdGg9IjQiIGZpbGw9Im5vbmUiLz48cGF0aCBkPSJNIDEwIDEwIEwgMzUgMzUgTSAzNSAxMCBMIDEwIDM1IiBzdHJva2U9IiNhYWI5YzYiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIvPjwvc3ZnPg==';
+        const thumbSatellite = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSIgdmlld0JveD0iMCAwIDQ1IDQ1Ij48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMDUzMjBkIi8+PGNpcmNsZSBjeD0iMTUiIGN5PSIxMiIgcj0iNSIgZmlsbD0iI2ZmZiIvPjxjaXJjbGUgY3g9IjI1IiBjeT0iMjUiIHI9IjgiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuOCIvPjxwYXRoIGQ9Ik0wIDM1IFEgMjAgMjUgNDUgNDAiIHN0cm9rZT0iIzY4YTY3YiIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIi8+PC9zdmc+';
+        const thumbTopo = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSIgdmlld0JveD0iMCAwIDQ1IDQ1Ij48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZDhjYTgxIi8+PHBhdGggZD0iTTUgNSBDIDE1IDE1LCAzMCAwLCA0MCAxMCBNIDUgMTggQyAxOCAyNSwgMjggMTUsIDQwIDI1IE0gNSAzNSBDIDE1IDQwLCAzMCAzMCwgNDAgNDAiIHN0cm9rZT0iIzhhNmY0MiIgc3Ryb2tlLXdpZHRoPSIxLjUiIGZpbGw9Im5vbmUiLz48L3N2Zz4=';
+        const thumbCartoLight = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSIgdmlld0JveD0iMCAwIDQ1IDQ1Ij48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjRmNGY0Ii8+PHBhdGggZD0iTTUgMTUgSCA0MCBNIDEwIDMwIEggMzUiIHN0cm9rZT0iI2QwZDBkMCIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTIyLjUgNSBWIDQwIiBzdHJva2U9IiNjMGMwYzMiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIvPjwvc3ZnPg==';
 
-
-        // --- Objeto para el Control de Capas ---
         const baseMaps = {
             [`<span><img src="${thumbOsm}" class="layer-thumbnail" alt="Calles"> <span class="layer-label-text">Calles</span></span>`]: streetLayer,
             [`<span><img src="${thumbSatellite}" class="layer-thumbnail" alt="Satélite"> <span class="layer-label-text">Satélite</span></span>`]: satelliteLayer,
             [`<span><img src="${thumbTopo}" class="layer-thumbnail" alt="Topográfico"> <span class="layer-label-text">Topo</span></span>`]: topoLayer,
-            [`<span><img src="${thumbCartoLight}" class="layer-thumbnail" alt="Claro"> <span class="layer-label-text">Claro</span></span>`]: cartoLight,
-            [`<span><img src="${thumbStamenToner}" class="layer-thumbnail" alt="Toner"> <span class="layer-label-text">Toner</span></span>`]: stamenToner
+            [`<span><img src="${thumbCartoLight}" class="layer-thumbnail" alt="Claro"> <span class="layer-label-text">Claro</span></span>`]: cartoLight
         };
 
-        // Añadir control de capas al mapa
         L.control.layers(baseMaps, null, { position: 'bottomleft', collapsed: false }).addTo(map);
 
-        // --- Lógica de Carga ---
-        map.whenReady(() => { console.log("Mapa listo (whenReady)."); streetLayer.once('load', () => { console.log("Capa base cargada (load). Ocultando overlay."); loadingOverlay.classList.add('hidden'); mapElement.classList.remove('loading'); }); setTimeout(() => { if (!loadingOverlay.classList.contains('hidden')) { console.warn("Fallback timeout: Ocultando overlay después de 3.5 segundos."); loadingOverlay.classList.add('hidden'); mapElement.classList.remove('loading'); } }, 3500); });
+        map.whenReady(() => {
+            streetLayer.once('load', () => {
+                loadingOverlay.classList.add('hidden');
+                mapElement.classList.remove('loading');
+            });
+            setTimeout(() => {
+                if (!loadingOverlay.classList.contains('hidden')) {
+                    console.warn("Fallback timeout: Ocultando overlay después de 3.5 segundos.");
+                    loadingOverlay.classList.add('hidden');
+                    mapElement.classList.remove('loading');
+                }
+            }, 3500);
+        });
 
-        // --- Lógica de Búsqueda ---
-        const searchInput = document.getElementById('search-input'); const suggestionsContainer = document.getElementById('suggestions-container'); const searchContainer = document.getElementById('search-container'); let debounceTimer;
-        function displaySuggestions(results) { console.log(">>> displaySuggestions EJECUTADA. Resultados recibidos:", results); suggestionsContainer.innerHTML = ''; if (results === null || results === undefined) { console.log("   Resultados son null/undefined, mostrando error."); suggestionsContainer.innerHTML = '<div class="suggestion-message">😕 Error al buscar. Intenta de nuevo.</div>'; suggestionsContainer.style.display = 'block'; return; } if (typeof results.error === 'string') { console.log("   La API devolvió un error:", results.error); showSearchError({ message: results.error }); return; } if (!Array.isArray(results) || results.length === 0) { console.log("   Resultados vacíos, no es array o no válidos."); suggestionsContainer.style.display = 'none'; return; } console.log(`   Procesando ${results.length} resultados.`); results.forEach(place => { const item = document.createElement('div'); item.classList.add('suggestion-item'); let mainName = place.address?.amenity || place.address?.shop || place.address?.tourism || place.address?.building || place.name || place.display_name.split(',')[0]; let details = [ place.address?.road || place.address?.pedestrian, place.address?.house_number, place.address?.suburb, place.address?.city || place.address?.town || place.address?.village, place.address?.state, place.address?.country ].filter(Boolean).join(', '); if (details.toLowerCase().includes(mainName.toLowerCase()) && details.length > mainName.length + 5) { mainName = place.display_name.split(',')[0]; } item.innerHTML = `<strong>${mainName}</strong><small>${details || place.display_name}</small>`; item.dataset.lat = place.lat; item.dataset.lon = place.lon; item.dataset.displayName = mainName; if (place.boundingbox && place.boundingbox.length === 4) { item.dataset.bbox = place.boundingbox.join(','); } else { item.dataset.bbox = ''; } item.addEventListener('click', () => { const lat = parseFloat(item.dataset.lat); const lon = parseFloat(item.dataset.lon); const bboxStr = item.dataset.bbox; let bbox = null; if (bboxStr) { bbox = bboxStr.split(',').map(Number); } if (bbox && bbox.length === 4 && (bbox[1] - bbox[0]) > 0.0001 && (bbox[3] - bbox[2]) > 0.0001) { map.flyToBounds([[bbox[0], bbox[2]], [bbox[1], bbox[3]]], { padding: [50, 50], maxZoom: 17, duration: 1 }); } else if (!isNaN(lat) && !isNaN(lon)) { map.flyTo([lat, lon], 16, { duration: 1 }); } searchInput.value = item.dataset.displayName; suggestionsContainer.innerHTML = ''; suggestionsContainer.style.display = 'none'; }); suggestionsContainer.appendChild(item); }); suggestionsContainer.style.display = 'block'; }
-        function showSearchError(errorDetails) { const message = errorDetails?.message || "Error desconocido."; console.error(">>> showSearchError EJECUTADA. Detalles:", errorDetails); suggestionsContainer.innerHTML = `<div class="suggestion-message">❌ Error al buscar: ${message}</div>`; suggestionsContainer.style.display = 'block'; }
-        function triggerSearch() { const query = searchInput.value.trim(); if (query.length < 3) { suggestionsContainer.innerHTML = ''; suggestionsContainer.style.display = 'none'; return; } suggestionsContainer.innerHTML = `<div class="suggestion-message"><div class="spinner spinner-small"></div>Buscando '${query}'...</div>`; suggestionsContainer.style.display = 'block'; const apiUrl = `/api/search?query=${encodeURIComponent(query)}`; fetch(apiUrl) .then(response => { if (!response.ok) { return response.json().then(errorData => { throw new Error(errorData.error || `Error ${response.status}: ${response.statusText}`); }).catch(() => { throw new Error(`Error ${response.status}: ${response.statusText}`); }); } return response.json(); }) .then(results => { displaySuggestions(results); }) .catch(error => { console.error("Error en fetch o procesamiento:", error); showSearchError(error); }); }
-        searchInput.addEventListener('input', () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(triggerSearch, 450); });
-        document.addEventListener('click', (event) => { if (searchContainer && !searchContainer.contains(event.target)) { suggestionsContainer.style.display = 'none'; } });
+        const searchInput = document.getElementById('search-input');
+        const suggestionsContainer = document.getElementById('suggestions-container');
+        const searchContainer = document.getElementById('search-container');
+        let debounceTimer;
 
-        // --- Lógica de Marcadores y Círculos ---
+        function displaySuggestions(results) {
+            suggestionsContainer.innerHTML = '';
+            if (results === null || results === undefined) {
+                suggestionsContainer.innerHTML = '<div class="suggestion-message">😕 Error al buscar. Intenta de nuevo.</div>';
+                suggestionsContainer.style.display = 'block';
+                return;
+            }
+            if (typeof results.error === 'string') {
+                showSearchError({ message: results.error });
+                return;
+            }
+            if (!Array.isArray(results) || results.length === 0) {
+                suggestionsContainer.style.display = 'none';
+                return;
+            }
+            results.forEach(place => {
+                const item = document.createElement('div');
+                item.classList.add('suggestion-item');
+                let mainName = place.address?.amenity || place.address?.shop || place.address?.tourism || place.address?.building || place.name || place.display_name.split(',')[0];
+                let details = [
+                    place.address?.road || place.address?.pedestrian,
+                    place.address?.house_number,
+                    place.address?.suburb,
+                    place.address?.city || place.address?.town || place.address?.village,
+                    place.address?.state,
+                    place.address?.country
+                ].filter(Boolean).join(', ');
+                if (details.toLowerCase().includes(mainName.toLowerCase()) && details.length > mainName.length + 5) {
+                    mainName = place.display_name.split(',')[0];
+                }
+                item.innerHTML = `<strong>${mainName}</strong><small>${details || place.display_name}</small>`;
+                item.dataset.lat = place.lat;
+                item.dataset.lon = place.lon;
+                item.dataset.displayName = mainName;
+                if (place.boundingbox && place.boundingbox.length === 4) {
+                    item.dataset.bbox = place.boundingbox.join(',');
+                } else {
+                    item.dataset.bbox = '';
+                }
+                item.addEventListener('click', () => {
+                    const lat = parseFloat(item.dataset.lat);
+                    const lon = parseFloat(item.dataset.lon);
+                    const bboxStr = item.dataset.bbox;
+                    let bbox = null;
+                    if (bboxStr) {
+                        bbox = bboxStr.split(',').map(Number);
+                    }
+                    if (bbox && bbox.length === 4 && (bbox[1] - bbox[0]) > 0.0001 && (bbox[3] - bbox[2]) > 0.0001) {
+                        map.flyToBounds([[bbox[0], bbox[2]], [bbox[1], bbox[3]]], { padding: [50, 50], maxZoom: 17, duration: 1 });
+                    } else if (!isNaN(lat) && !isNaN(lon)) {
+                        map.flyTo([lat, lon], 16, { duration: 1 });
+                    }
+                    searchInput.value = item.dataset.displayName;
+                    suggestionsContainer.innerHTML = '';
+                    suggestionsContainer.style.display = 'none';
+                });
+                suggestionsContainer.appendChild(item);
+            });
+            suggestionsContainer.style.display = 'block';
+        }
+
+        function showSearchError(errorDetails) {
+            const message = errorDetails?.message || "Error desconocido.";
+            console.error("Error al buscar:", errorDetails);
+            suggestionsContainer.innerHTML = `<div class="suggestion-message">❌ Error al buscar: ${message}</div>`;
+            suggestionsContainer.style.display = 'block';
+        }
+
+        function triggerSearch() {
+            const query = searchInput.value.trim();
+            if (query.length < 3) {
+                suggestionsContainer.innerHTML = '';
+                suggestionsContainer.style.display = 'none';
+                return;
+            }
+            suggestionsContainer.innerHTML = `<div class="suggestion-message"><div class="spinner spinner-small"></div>Buscando '${query}'...</div>`;
+            suggestionsContainer.style.display = 'block';
+            const apiUrl = `/api/search?query=${encodeURIComponent(query)}`;
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.error || `Error ${response.status}: ${response.statusText}`);
+                        }).catch(() => {
+                            throw new Error(`Error ${response.status}: ${response.statusText}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(results => {
+                    displaySuggestions(results);
+                })
+                .catch(error => {
+                    console.error("Error en fetch o procesamiento:", error);
+                    showSearchError(error);
+                });
+        }
+
+        searchInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(triggerSearch, 450);
+        });
+
+        document.addEventListener('click', (event) => {
+            if (searchContainer && !searchContainer.contains(event.target)) {
+                suggestionsContainer.style.display = 'none';
+            }
+        });
+
         const markersData = {};
-        function calculateDestinationPoint(lat, lon, distance, bearing) { const R = 6371e3; const lat1Rad = lat * Math.PI / 180; const lon1Rad = lon * Math.PI / 180; const bearingRad = bearing * Math.PI / 180; const dRad = distance / R; const lat2Rad = Math.asin(Math.sin(lat1Rad) * Math.cos(dRad) + Math.cos(lat1Rad) * Math.sin(dRad) * Math.cos(bearingRad)); const lon2Rad = lon1Rad + Math.atan2(Math.sin(bearingRad) * Math.sin(dRad) * Math.cos(lat1Rad), Math.cos(dRad) - Math.sin(lat1Rad) * Math.sin(lat2Rad)); return L.latLng(lat2Rad * 180 / Math.PI, lon2Rad * 180 / Math.PI); }
 
-        // Función modificada para crear etiquetas con iconAnchor
+        function calculateDestinationPoint(lat, lon, distance, bearing) {
+            const R = 6371e3;
+            const lat1Rad = lat * Math.PI / 180;
+            const lon1Rad = lon * Math.PI / 180;
+            const bearingRad = bearing * Math.PI / 180;
+            const dRad = distance / R;
+            const lat2Rad = Math.asin(Math.sin(lat1Rad) * Math.cos(dRad) + Math.cos(lat1Rad) * Math.sin(dRad) * Math.cos(bearingRad));
+            const lon2Rad = lon1Rad + Math.atan2(Math.sin(bearingRad) * Math.sin(dRad) * Math.cos(lat1Rad), Math.cos(dRad) - Math.sin(lat1Rad) * Math.sin(lat2Rad));
+            return L.latLng(lat2Rad * 180 / Math.PI, lon2Rad * 180 / Math.PI);
+        }
+
         function createLabel(latlng, text, positionClass) {
-            // Estimación del tamaño de la etiqueta para el anclaje (ajustar si es necesario)
-            const estimatedLabelWidth = 30; // Ancho aproximado en píxeles
-            const estimatedLabelHeight = 16; // Alto aproximado en píxeles
+            const estimatedLabelWidth = 30;
+            const estimatedLabelHeight = 16;
             const labelIcon = L.divIcon({
                 className: `radius-label ${positionClass}`,
                 html: text,
-                iconSize: null, // Leaflet lo calcula basado en el HTML
-                iconAnchor: [estimatedLabelWidth / 2, estimatedLabelHeight / 2] // Centrar el icono en el punto calculado
+                iconSize: null,
+                iconAnchor: [estimatedLabelWidth / 2, estimatedLabelHeight / 2]
             });
             return L.marker(latlng, {
                 icon: labelIcon,
-                interactive: false, // No clickable
-                pane: 'markerPane', // Pane estándar para marcadores
+                interactive: false,
+                pane: 'markerPane',
             }).addTo(map);
         }
 
-        // Función modificada para añadir marcadores, círculos y etiquetas
         function addMarkerWithCirclesAndLabels(latlng) {
             const solarIcon = L.divIcon({
                 html: '<i class="fas fa-solar-panel fa-2x" style="color: var(--blue-light);"></i>',
                 className: 'solar-marker-icon',
                 iconSize: [30, 30],
-                iconAnchor: [15, 30] // Ancla en la base central del icono
+                iconAnchor: [15, 30]
             });
             const marker = L.marker(latlng, { icon: solarIcon, draggable: false }).addTo(map);
             const markerId = L.Util.stamp(marker);
 
             const radii = [
-                { radius: 500, label: "500m", color: '#3388FF', opacity: 0.25, labelOpacity: 0.6 }, // Opacidad de relleno reducida
-                { radius: 2000, label: "2km", color: '#FF5733', opacity: 0.15, labelOpacity: 0.4 }  // Opacidad de relleno reducida
+                { radius: 500, label: "500m", color: '#3388FF', opacity: 0.25, labelOpacity: 0.6 },
+                { radius: 2000, label: "2km", color: '#FF5733', opacity: 0.15, labelOpacity: 0.4 }
             ];
 
-            // Orientaciones para las etiquetas
             const bearings = [
-                { bearing: 0, posClass: 'label-north' },    // Norte
-                { bearing: 180, posClass: 'label-south' },  // Sur
-                { bearing: 90, posClass: 'label-east' },    // Este
-                { bearing: 270, posClass: 'label-west' }    // Oeste
+                { bearing: 0, posClass: 'label-north' },
+                { bearing: 180, posClass: 'label-south' },
+                { bearing: 90, posClass: 'label-east' },
+                { bearing: 270, posClass: 'label-west' }
             ];
 
             const createdCircles = [], createdLabels = [];
 
             try {
                 radii.forEach(rInfo => {
-                    // Crear círculo
                     const circle = L.circle(latlng, {
                         radius: rInfo.radius,
                         color: rInfo.color,
                         fillColor: rInfo.color,
-                        fillOpacity: rInfo.opacity, // Usar la opacidad definida
+                        fillOpacity: rInfo.opacity,
                         weight: 1.5,
                         className: 'autoconsumo-circle'
                     }).addTo(map);
                     createdCircles.push(circle);
 
-                    // Crear etiquetas para cada orientación
                     bearings.forEach(bInfo => {
-                        // *** CAMBIO CLAVE: Calcular posición ligeramente DENTRO del círculo ***
-                        const labelDistance = rInfo.radius * 0.95; // P.ej., al 95% del radio
+                        const labelDistance = rInfo.radius * 0.95;
                         const labelLatLng = calculateDestinationPoint(latlng.lat, latlng.lng, labelDistance, bInfo.bearing);
                         createdLabels.push(createLabel(labelLatLng, rInfo.label, bInfo.posClass));
                     });
                 });
 
-                // Guardar referencias
                 markersData[markerId] = { marker: marker, circles: createdCircles, labels: createdLabels };
 
-                // Contenido del Popup
                 const popupContent = `
-                    <div class="popup-title">📍 Punto seleccionado</div>
+                    <div class="popup-title">📍 Punto Seleccionado</div>
                     <div class="popup-coords">
                         <span>Lat:</span> ${latlng.lat.toFixed(5)}<br>
                         <span>Lng:</span> ${latlng.lng.toFixed(5)}
@@ -314,12 +406,11 @@
                         <i class="fas fa-trash-alt"></i> Eliminar Punto
                     </button>
                 `;
-                marker.bindPopup(popupContent).openPopup(); // Abrir popup al crear
-                marker.on('click', () => marker.openPopup()); // Reabrir al hacer clic
+                marker.bindPopup(popupContent).openPopup();
+                marker.on('click', () => marker.openPopup());
 
             } catch (e) {
                 console.error("Error al crear círculos/etiquetas:", e);
-                // Limpieza en caso de error
                 if (marker) map.removeLayer(marker);
                 createdCircles.forEach(c => map.removeLayer(c));
                 createdLabels.forEach(l => map.removeLayer(l));
@@ -328,26 +419,22 @@
             }
         }
 
-        // Función para eliminar marcador y sus elementos asociados
         window.removeMarkerAndElements = function(markerId) {
             const data = markersData[markerId];
             if (data) {
                 data.labels.forEach(label => map.removeLayer(label));
                 data.circles.forEach(circle => map.removeLayer(circle));
                 map.removeLayer(data.marker);
-                delete markersData[markerId]; // Eliminar la referencia
+                delete markersData[markerId];
             } else {
                 console.warn("Intento de eliminar marcador no encontrado con ID:", markerId);
             }
         }
 
-        // Listener para añadir marcador al hacer clic en el mapa
         map.on('click', function(e) {
-            // Evitar añadir marcador si se hace clic en un elemento interactivo existente
             let target = e.originalEvent.target;
             let clickedOnInteractiveElement = false;
             while (target && target !== map._container) {
-                // Comprobar si se hizo clic en un marcador, control, o dentro de un popup
                 if (target.classList?.contains('leaflet-marker-icon') ||
                     target.classList?.contains('leaflet-control') ||
                     target.closest('.leaflet-popup-content-wrapper')) {
