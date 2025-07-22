@@ -360,10 +360,10 @@
             const marker = L.marker(latlng, { icon: solarIcon, draggable: false }).addTo(map);
             const markerId = L.Util.stamp(marker);
 
-            const radii = [
-                { radius: 500, label: "500m", color: '#3388FF', opacity: 0.25, labelOpacity: 0.6 },
-                { radius: 2000, label: "2km", color: '#FF5733', opacity: 0.15, labelOpacity: 0.4 }
-            ];
+const radii = [
+    { radius: 500, label: "500m", color: '#3388FF', opacity: 0.25, labelOpacity: 0.6 },
+    { radius: 5000, label: "5km", color: '#FF5733', opacity: 0.15, labelOpacity: 0.4 }
+];
 
             const bearings = [
                 { bearing: 0, posClass: 'label-north' },
