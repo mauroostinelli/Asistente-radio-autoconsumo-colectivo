@@ -360,10 +360,11 @@
             const marker = L.marker(latlng, { icon: solarIcon, draggable: false }).addTo(map);
             const markerId = L.Util.stamp(marker);
 
-const radii = [
-    { radius: 500, label: "500m", color: '#3388FF', opacity: 0.25, labelOpacity: 0.6 },
-    { radius: 2000, label: "2km", color: '#FF5733', opacity: 0.15, labelOpacity: 0.4 }
-];
+            // AQUÍ SE HA CAMBIADO EL RADIO Y LA ETIQUETA
+            const radii = [
+                { radius: 500, label: "500m", color: '#3388FF', opacity: 0.25, labelOpacity: 0.6 },
+                { radius: 5000, label: "5km", color: '#FF5733', opacity: 0.15, labelOpacity: 0.4 }
+            ];
 
             const bearings = [
                 { bearing: 0, posClass: 'label-north' },
@@ -395,13 +396,14 @@ const radii = [
 
                 markersData[markerId] = { marker: marker, circles: createdCircles, labels: createdLabels };
 
+                // TAMBIÉN SE HA ACTUALIZADO EL TEXTO DE LA VENTANA EMERGENTE (POPUP)
                 const popupContent = `
                     <div class="popup-title">📍 Punto seleccionado</div>
                     <div class="popup-coords">
                         <span>Lat:</span> ${latlng.lat.toFixed(5)}<br>
                         <span>Lng:</span> ${latlng.lng.toFixed(5)}
                     </div>
-                    <div style="font-size: 12px; color: #777; margin-bottom: 15px;">Radios de autoconsumo: 500m y 2km</div>
+                    <div style="font-size: 12px; color: #777; margin-bottom: 15px;">Radios de autoconsumo: 500m y 5km</div>
                     <button class="popup-delete-button" onclick="removeMarkerAndElements(${markerId})">
                         <i class="fas fa-trash-alt"></i> Eliminar punto
                     </button>
